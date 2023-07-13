@@ -1,0 +1,22 @@
+{
+  "name": "noravel",
+  "version": "1.0.0",
+  "description": "This is a web application framework based on php laravel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ttpn18121996/noravel.git"
+  },
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["noravel"],
+  "author": "Trịnh Trần Phương Nam <ttpn18121996@gmail.com>",
+  "contributors": [],
+  "license": "MIT",
+  "homepage": "https://github.com/ttpn18121996/noravel",
+  "bugs": "https://github.com/ttpn18121996/noravel/issues",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
