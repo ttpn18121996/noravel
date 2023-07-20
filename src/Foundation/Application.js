@@ -3,6 +3,7 @@
 const path = require('path');
 
 const Application = function (app, base_dir) {
+  const container = require('./Container');
   const appConfig = require('./Config')().getConfig('app');
   const providers = appConfig?.providers ?? [];
   const serviceProviderRegistered = [];
@@ -11,7 +12,7 @@ const Application = function (app, base_dir) {
   };
 
   for (const providerName of providers) {
-    const provider = require(basePath(`app/Providers/${providerName}`))(app);
+    const provider = new (require(basePath(`app/Providers/${providerName}`)))(app, container.getInstance());
     provider.register();
     serviceProviderRegistered.push(provider);
   }

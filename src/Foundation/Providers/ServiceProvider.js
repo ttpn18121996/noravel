@@ -1,8 +1,9 @@
 'use strict';
 
 class ServiceProvider {
-  constructor(app) {
+  constructor(app, container) {
     this.app = app;
+    this.container = container;
   }
 
   register() {}
