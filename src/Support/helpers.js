@@ -1,3 +1,5 @@
+const Str = require('./Str');
+
 const isset = value => {
   return value !== undefined && value !== null;
 };
@@ -70,6 +72,9 @@ const _obj = {
     },
 };
 
+const _str = (value = '') => new Str(value);
+
 exports.isset = isset;
 exports.empty = empty;
 exports._obj = _obj;
+exports._str = _str;

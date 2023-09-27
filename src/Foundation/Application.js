@@ -3,7 +3,7 @@
 const path = require('path');
 
 const Application = function (app, base_dir) {
-  const container = require('./Container');
+  const container = require('./Container').getInstance();
   const appConfig = require('./Config')().getConfig('app');
   const providers = appConfig?.providers ?? [];
   const serviceProviderRegistered = [];
@@ -11,8 +11,12 @@ const Application = function (app, base_dir) {
     return path.join(base_dir, pathFile);
   };
 
+  const baseAppServiceProvider = new (require(`./Providers/AppServiceProvider`))(app, container);
+  baseAppServiceProvider.register();
+  serviceProviderRegistered.push(baseAppServiceProvider);
+
   for (const providerName of providers) {
-    const provider = new (require(basePath(`app/Providers/${providerName}`)))(app, container.getInstance());
+    const provider = new (require(basePath(`app/Providers/${providerName}`)))(app, container);
     provider.register();
     serviceProviderRegistered.push(provider);
   }
@@ -24,6 +28,8 @@ const Application = function (app, base_dir) {
         serviceProvider.boot();
       }
     },
+    container,
+    app,
   };
 }
 

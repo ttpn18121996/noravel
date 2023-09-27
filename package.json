@@ -10,13 +10,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["noravel"],
+  "keywords": [
+    "noravel"
+  ],
   "author": "Trịnh Trần Phương Nam <ttpn18121996@gmail.com>",
   "contributors": [],
   "license": "MIT",
   "homepage": "https://github.com/ttpn18121996/noravel",
   "bugs": "https://github.com/ttpn18121996/noravel/issues",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mysql2": "^3.6.1"
   }
 }
