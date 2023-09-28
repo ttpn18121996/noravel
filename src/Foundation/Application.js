@@ -11,6 +11,8 @@ const Application = function (app, base_dir) {
     return path.join(base_dir, pathFile);
   };
 
+  container.setBaseDir(base_dir);
+
   const baseAppServiceProvider = new (require(`./Providers/AppServiceProvider`))(app, container);
   baseAppServiceProvider.register();
   serviceProviderRegistered.push(baseAppServiceProvider);

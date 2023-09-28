@@ -7,6 +7,9 @@ class AppServiceProvider extends ServiceProvider {
     this.container.bind('mysqlConnection', () => {
       return new (require('../../Database/MySqlConnection'))();
     });
+    this.container.bind('Config', () => {
+      return require('../Config')();
+    })
   }
 }
 

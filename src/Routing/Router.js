@@ -13,9 +13,12 @@ const Router = () => {
   }
 
   const add = (method, uri, action) => {
+    const newRoute = new Route(uri, action);
     if (routeRegistered?.[method.toLowerCase()]) {
-      routeRegistered[method.toLowerCase()].push(new Route(uri, action));
+      routeRegistered[method.toLowerCase()].push(newRoute);
     }
+
+    return newRoute;
   };
 
   return {
@@ -34,7 +37,9 @@ const Router = () => {
       const routeEntries = Object.entries(routeRegistered);
       for (const [method, routes] of routeEntries) {
         for (const route of routes) {
-          ExpressRouter[method](route.uri, (req, res) => route.execute(req, res));
+          const middlewares = route.resolveMiddlewares();
+          middlewares.push((req, res) => route.execute(req, res));
+          ExpressRouter[method](route.uri, ...middlewares);
         }
       }
 

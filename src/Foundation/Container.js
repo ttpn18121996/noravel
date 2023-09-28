@@ -1,7 +1,11 @@
+'use strict';
+
 const { _str } = require('../Support/helpers');
+const path = require('path');
 
 const Container = (() => {
   let instance;
+  let baseDir;
   const bound = {};
 
   return {
@@ -53,6 +57,14 @@ const Container = (() => {
   
       return fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES) ?? [];
     },
+
+    setBaseDir(dir) {
+      baseDir = dir;
+    },
+
+    getBaseDir(pathFile) {
+      return path.join(baseDir, pathFile);
+    }
   };
 })()
 
