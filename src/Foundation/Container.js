@@ -1,6 +1,6 @@
 'use strict';
 
-const { _str } = require('../Support/helpers');
+const { _str } = require('tiny-supporter');
 const path = require('path');
 
 const Container = (() => {

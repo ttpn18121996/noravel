@@ -1,9 +1,14 @@
 'use strict';
 
 class ServiceProvider {
-  constructor(app, container) {
+  constructor(app, baseDir, container) {
     this.app = app;
+    this.baseDir = baseDir;
     this.container = container;
+  }
+
+  getBaseDir(path = '') {
+    return this.baseDir + path.replace(/^\//, '');
   }
 
   register() {}

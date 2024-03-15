@@ -1,6 +1,6 @@
 'use strict';
 
-const { _obj } = require('../Support/helpers');
+const { _obj } = require('tiny-supporter');
 
 class ConnectionFactory {
   getDriver(key = null) {

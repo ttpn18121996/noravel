@@ -1,7 +1,7 @@
 'use strict';
 
 const container = require('../Foundation/Container').getInstance();
-const { _obj } = require('../Support/helpers');
+const { _obj } = require('tiny-supporter');
 
 class Route {
   constructor(uri, action) {

@@ -1,9 +1,19 @@
 'use strict';
 
+const express = require('express');
+const expressHandlebars = require('express-handlebars');
 const ServiceProvider = require('./ServiceProvider');
 
 class AppServiceProvider extends ServiceProvider {
   register() {
+    // Register view engine
+    this.app.engine('.html', expressHandlebars.engine({ extname: '.html' }));
+    this.app.set('view engine', '.html');
+    this.app.set('views', this.getBaseDir('resources/views'));
+
+    // Register static files
+    this.app.use(express.static('public'));
+
     this.container.bind('mysqlConnection', () => {
       return new (require('../../Database/MySqlConnection'))();
     });
