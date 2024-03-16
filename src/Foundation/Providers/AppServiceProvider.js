@@ -9,7 +9,7 @@ class AppServiceProvider extends ServiceProvider {
     // Register view engine
     this.app.engine('.html', expressHandlebars.engine({ extname: '.html' }));
     this.app.set('view engine', '.html');
-    this.app.set('views', this.getBaseDir('resources/views'));
+    this.app.set('views', './resources/views');
 
     // Register static files
     this.app.use(express.static('public'));

@@ -26,5 +26,8 @@
     "mysql2": "^3.6.1",
     "pg": "^8.11.3",
     "tiny-supporter": "^1.0.6"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
   }
 }

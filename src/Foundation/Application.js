@@ -76,7 +76,7 @@ const Application = function ({ baseDir = '/', configs = [] }) {
   function run() {
     bootServiceProviders();
 
-    for (const route in registeredRoutes) {
+    for (const route of registeredRoutes) {
       server.use(route.prefix, route.route);
     }
 

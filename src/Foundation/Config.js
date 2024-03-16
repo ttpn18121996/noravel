@@ -1,6 +1,5 @@
 'use strict';
 
-const fs = require('fs');
 const { _obj } = require('tiny-supporter');
 
 const Config = function () {
