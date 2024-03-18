@@ -20,7 +20,7 @@ const Config = function () {
       if (key === null || key === undefined || key === '') {
         return configs;
       }
-      return _obj.get(configs, key);
+      return _obj.get(configs, key, null);
     },
   };
 };

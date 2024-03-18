@@ -7,9 +7,15 @@ const ServiceProvider = require('./ServiceProvider');
 class AppServiceProvider extends ServiceProvider {
   register() {
     // Register view engine
-    this.app.engine('.html', expressHandlebars.engine({ extname: '.html' }));
+    this.app.engine(
+      '.html',
+      expressHandlebars.engine({
+        extname: '.html',
+        defaultLayout: this.container.getConfig('view.default_layout'),
+      }),
+    );
     this.app.set('view engine', '.html');
-    this.app.set('views', './resources/views');
+    this.app.set('views', this.container.getConfig('view.path'));
 
     // Register static files
     this.app.use(express.static('public'));
@@ -19,7 +25,7 @@ class AppServiceProvider extends ServiceProvider {
     });
     this.container.bind('Config', () => {
       return require('../Config')();
-    })
+    });
   }
 }
 

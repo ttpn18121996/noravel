@@ -5,15 +5,16 @@ const { _obj } = require('tiny-supporter');
 const Container = require('./Container');
 const Config = require('./Config');
 const RootAppServiceProvider = require('./Providers/AppServiceProvider');
+const RootRouteServiceProvider = require('./Providers/RouteServiceProvider');
 
 const Application = function ({ baseDir = '/', configs = [] }) {
   const server = express();
   const config = Config().loadConfig(configs);
   const registeredProviders = [];
-  const registeredRoutes = [];
   const registeredMiddlewares = [];
   const container = Container.getInstance();
   container.setBaseDir(baseDir);
+  container.setConfig(config);
 
   function getBaseDir(path) {
     return baseDir + path.replace(/^\//, '');
@@ -21,6 +22,8 @@ const Application = function ({ baseDir = '/', configs = [] }) {
 
   function withRouting(routes) {
     const routesEntries = Object.entries(routes);
+    const routeServiceProviderInstance = new RootRouteServiceProvider({ server, baseDir, container });
+    const registeredRoutes = [];
 
     for (const [prefix, route] of routesEntries) {
       registeredRoutes.push({
@@ -28,6 +31,9 @@ const Application = function ({ baseDir = '/', configs = [] }) {
         route,
       });
     }
+
+    routeServiceProviderInstance.loadRoutes(registeredRoutes);
+    registeredProviders.push(routeServiceProviderInstance);
 
     return this;
   }
@@ -40,20 +46,24 @@ const Application = function ({ baseDir = '/', configs = [] }) {
     return this;
   }
 
-  function registerServiceProviders() {
+  function makeServiceProvider() {
     const appConfig = config.getConfig('app');
     const providers = _obj.get(appConfig, 'providers', []);
-    providers.push(RootAppServiceProvider);
+
+    registeredProviders.push(new RootAppServiceProvider({ server, baseDir, container }));
 
     for (const serviceProvider of providers) {
-      const serviceProviderInstance = new serviceProvider(server, baseDir, container);
+      registeredProviders.push(new serviceProvider({ server, baseDir, container }));
+    }
+  }
 
-      if (typeof serviceProviderInstance.register !== 'function') {
-        throw new Error(serviceProviderInstance.constructor.name + ' has not defined the register method.');
+  function registerServiceProviders() {
+    for (const registeredProvider of registeredProviders) {
+      if (typeof registeredProvider.register !== 'function') {
+        throw new Error(registeredProvider.constructor.name + ' has not defined the register method.');
       }
 
-      serviceProviderInstance.register();
-      registeredProviders.push(serviceProviderInstance);
+      registeredProvider.register();
     }
   }
 
@@ -68,6 +78,7 @@ const Application = function ({ baseDir = '/', configs = [] }) {
   }
 
   function create() {
+    makeServiceProvider();
     registerServiceProviders();
 
     return this;
@@ -75,10 +86,6 @@ const Application = function ({ baseDir = '/', configs = [] }) {
 
   function run() {
     bootServiceProviders();
-
-    for (const route of registeredRoutes) {
-      server.use(route.prefix, route.route);
-    }
 
     return server;
   }

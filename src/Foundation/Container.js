@@ -1,11 +1,12 @@
 'use strict';
 
-const { _str } = require('tiny-supporter');
+const { _str, _obj } = require('tiny-supporter');
 const path = require('path');
 
 const Container = (() => {
   let instance;
   let baseDir;
+  let config;
   const bound = {};
 
   return {
@@ -32,12 +33,12 @@ const Container = (() => {
           for (const dependency of dependencies) {
             instances.push(this.resolve(dependency, params));
           }
-  
+
           return Reflect.construct(concrete, instances);
         }
         return new concrete();
       }
-  
+
       return params?.[abstract];
     },
 
@@ -46,7 +47,7 @@ const Container = (() => {
     },
 
     getArgumentNames(constructor) {
-      const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+      const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
 
       if (this.isConstructor(constructor)) {
         return _str(constructor.toString()).replace(STRIP_COMMENTS, '').between('constructor(', ')').get().split(',');
@@ -54,7 +55,7 @@ const Container = (() => {
 
       const ARGUMENT_NAMES = /([^\s,]+)/g;
       const fnStr = constructor.toString().replace(STRIP_COMMENTS, '');
-  
+
       return fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES) ?? [];
     },
 
@@ -64,8 +65,16 @@ const Container = (() => {
 
     getBaseDir(pathFile) {
       return path.join(baseDir, pathFile);
+    },
+
+    setConfig(data) {
+      config = data;
+    },
+
+    getConfig(key) {
+      return config.getConfig(key);
     }
   };
-})()
+})();
 
 module.exports = Container;
