@@ -1,18 +1,19 @@
 'use strict';
 
 const Connection = require('./Connection');
+const Container = require('../Foundation/Container');
 const mysql = require('mysql2');
 
 class MySqlConnection extends Connection {
   constructor() {
     super();
-    this.config = require('../Foundation/Config')().getConfig('database.connections.mysql');
+    this.config = Container.getConfig('database.connections.mysql');
   }
 
   getConnection() {
     if (!this.connection) {
-      const { host, port, user, password, database } = this.config;
-      this.connection = mysql.createConnection({ host, port, user, password, database });
+      const { host, port, username, password, database } = this.config;
+      this.connection = mysql.createConnection({ host, port, user: username, password, database });
     }
 
     this.checkConnection();
