@@ -16,6 +16,10 @@ class Builder {
 
     return this;
   }
+
+  executeRaw(sql, callback) {
+    return this.connection.execute(sql, callback);
+  }
 }
 
 module.exports = Builder;
