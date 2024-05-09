@@ -5,7 +5,7 @@ import Container from '../Foundation/Container.js';
 export default class MySqlConnection extends Connection {
   constructor() {
     super();
-    this.config = Container.getConfig('database.connections.mysql');
+    this.config = Container.getInstance().getConfig('database.connections.mysql');
   }
 
   async getConnection() {
@@ -14,8 +14,21 @@ export default class MySqlConnection extends Connection {
       this.connection = await mysql.createConnectionPromise({ host, port, user: username, password, database });
     }
 
-    this.checkConnection();
+    this.connection.connect(err => {
+      if (err) {
+        console.log(`Error connecting: ${err}`);
+        return;
+      }
+
+      console.log(this.constructor.name + ' connection successful! ' + this.connection.threadId);
+    });
 
     return this.connection;
+  }
+
+  async execute(sql, data = []) {
+    const conn = await this.getConnection();
+
+    return conn.execute(sql, data);
   }
 }

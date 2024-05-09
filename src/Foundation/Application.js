@@ -4,13 +4,14 @@ import Container from './Container.js';
 import Config from './Config.js';
 import RootAppServiceProvider from './Providers/AppServiceProvider.js';
 import RootRouteServiceProvider from './Providers/RouteServiceProvider.js';
+import Middleware from './Configuration/Middleware.js';
 
 export default (function Application () {
   const server = express();
   let basePath;
   let config;
   const registeredProviders = [];
-  const registeredMiddlewares = [];
+  const middleware = new Middleware();
   const container = Container.getInstance();
 
   function configure(data = { basePath: '/', configs: {} }) {
@@ -46,10 +47,8 @@ export default (function Application () {
     return this;
   }
 
-  function withMiddleware(middlewares = []) {
-    for (const middleware of middlewares) {
-      registeredMiddlewares.push(middleware);
-    }
+  function withMiddleware(callback) {
+    callback(middleware);
     
     return this;
   }

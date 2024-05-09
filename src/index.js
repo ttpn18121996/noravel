@@ -1,9 +1,8 @@
 import Application from './Foundation/Application.js';
-import _ServiceProvider from './Foundation/Providers/ServiceProvider.js';
-import _Config from './Foundation/Config.js'
-import _Router from './Routing/Router.js';
+import Config from './Foundation/Config.js';
+import DB from './Database/DB.js';
+import Router from './Routing/Router.js';
+import ServiceProvider from './Foundation/Providers/ServiceProvider.js';
 
-export const Config = _Config;
-export const ServiceProvider = _ServiceProvider;
-export const Router = _Router;
+export { Config, DB, Router, ServiceProvider };
 export default Application;

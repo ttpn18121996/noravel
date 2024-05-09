@@ -12,6 +12,7 @@ export default class Builder {
   constructor(ConnectionFactory) {
     this.connectionFactory = ConnectionFactory;
     this.connection = ConnectionFactory.getConnection();
+    this.connectionName = ConnectionFactory.getConfig('default');
     this.columns = ['*'];
     this.from = '';
     this.join = [];
@@ -19,7 +20,8 @@ export default class Builder {
   }
 
   connection(connectionName) {
-    this.connection = ConnectionFactory.getConnection(connectionName);
+    this.connectionName = connectionName;
+    this.connection = ConnectionFactory.getConnection(this.connectionName);
 
     return this;
   }
@@ -49,9 +51,7 @@ export default class Builder {
     //
   }
 
-  async execute(sql, data) {
-    const conn = await this.connection;
-
-    return await conn.execute(sql, data);
+  async execute(sql, data = []) {
+    return await this.connection.execute(sql, data);
   }
 }

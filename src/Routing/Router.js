@@ -28,9 +28,7 @@ export default (() => {
     patch: (uri, action) => add('patch', uri, action),
     delete: (uri, action) => add('delete', uri, action),
     options: (uri, action) => add('options', uri, action),
-    routeList: () => {
-      return routeRegistered;
-    },
+    routeList: () => routeRegistered,
     run: () => {
       const router = ExpressRouter();
       const routeEntries = Object.entries(routeRegistered);

@@ -26,6 +26,7 @@
     "express-session": "^1.17.3",
     "mysql2": "^3.6.1",
     "pg": "^8.11.3",
+    "sqlite3": "^5.1.7",
     "tiny-supporter": "^1.1"
   },
   "devDependencies": {

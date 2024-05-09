@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj, typeOf } from 'tiny-supporter';
 
 export default class Route {
   constructor(uri, action) {
@@ -23,7 +23,17 @@ export default class Route {
   }
 
   resolveMiddlewares() {
-    return [];
+    return this.middlewares.map(middleware => {
+      if (typeOf(middleware) === 'constructor') {
+        middleware = new middleware();
+      }
+
+      if (typeof middleware.handle === 'function') {
+        return middleware.handle;
+      }
+
+      return middleware;
+    });
   }
 
   execute(req, res, next) {

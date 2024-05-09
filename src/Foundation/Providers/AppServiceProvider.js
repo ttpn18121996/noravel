@@ -1,6 +1,7 @@
 import express from 'express';
 import expressHandlebars from 'express-handlebars';
 import ServiceProvider from './ServiceProvider.js';
+import MySqlConnection from '../../Database/MySqlConnection.js';
 
 export default class AppServiceProvider extends ServiceProvider {
   register() {
@@ -19,7 +20,7 @@ export default class AppServiceProvider extends ServiceProvider {
     this.app.use(express.static('public'));
 
     this.container.bind('mysqlConnection', () => {
-      return new (require('../../Database/MySqlConnection'))();
+      return new MySqlConnection();
     });
     this.container.bind('Config', () => {
       return require('../Config')();
