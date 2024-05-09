@@ -1,6 +1,7 @@
 'use strict';
 
-const { _obj } = require('../Support/helpers');
+const { _obj } = require('tiny-supporter');
+const Container = require('../Foundation/Container');
 
 class ConnectionFactory {
   getDriver(key = null) {
@@ -17,11 +18,13 @@ class ConnectionFactory {
   }
 
   getConnection(connectionName) {
-    const databaseConfig = require('../Foundation/Config')().getConfig('database');
-    const connectionName = connectionName ?? _obj.get(databaseConfig, 'default');
+    const databaseConfig = Container.getConfig('database');
+    connectionName = connectionName ?? _obj.get(databaseConfig, 'default');
     const driver = _obj.get(databaseConfig, `connections.${connectionName}.driver`);
+    const connection = require(`./${this.getDriver(driver)}`);
+    const connectionInstance = new connection();
 
-    return require(`./${this.getDriver(driver)}`);
+    return connectionInstance.getConnection();
   }
 };
 

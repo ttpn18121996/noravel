@@ -1,24 +1,26 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const { _obj } = require('../Support/helpers');
+const { _obj } = require('tiny-supporter');
 
-function Config() {
+const Config = function () {
   const configs = {};
-  const files = fs.readdirSync(path.resolve('config'));
 
-  for (const file of files) {
-    const key = file.replace(/\.js$/i, '');
-    configs[key] = require(path.resolve('config', file));
+  function loadConfig(loaders = {}) {
+    const loaderEntries = Object.entries(loaders);
+    for (const [key, loader] of loaderEntries) {
+      configs[key] = loader;
+    }
+
+    return this;
   }
 
   return {
+    loadConfig,
     getConfig(key = null) {
       if (key === null || key === undefined || key === '') {
         return configs;
       }
-      return _obj.get(configs, key);
+      return _obj.get(configs, key, null);
     },
   };
 };
