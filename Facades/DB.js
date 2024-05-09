@@ -1,5 +1,5 @@
-const Builder = require('../src/Database/Query/Builder');
-const ConnectionFactory = require('../src/Database/ConnectionFactory');
+import Builder from '../src/Database/Query/Builder.js';
+import ConnectionFactory from '../src/Database/ConnectionFactory.js';
 
 const DB = {
   buidler: new Builder(new ConnectionFactory()),
@@ -8,4 +8,4 @@ const DB = {
   },
 };
 
-module.exports = DB;
+export default DB;
