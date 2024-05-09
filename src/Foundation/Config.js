@@ -1,6 +1,4 @@
-'use strict';
-
-const { _obj } = require('tiny-supporter');
+import { _obj } from 'tiny-supporter';
 
 const Config = function () {
   const configs = {};
@@ -25,4 +23,4 @@ const Config = function () {
   };
 };
 
-module.exports = Config;
+export default Config;

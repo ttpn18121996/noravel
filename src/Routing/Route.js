@@ -1,9 +1,6 @@
-'use strict';
+import { _obj } from 'tiny-supporter';
 
-const container = require('../Foundation/Container').getInstance();
-const { _obj } = require('tiny-supporter');
-
-class Route {
+export default class Route {
   constructor(uri, action) {
     this.uri = uri;
     this.middlewares = [];
@@ -26,26 +23,14 @@ class Route {
   }
 
   resolveMiddlewares() {
-    const resolvedMiddlewares = [];
-    const registeredMiddlewares = require(container.getBaseDir('app/Http/Middleware')).middlewares;
-
-    for (const middleware of this.getMiddlewares()) {
-      const resolveMiddleware = require(container.getBaseDir(
-        `app/Http/Middleware/${_obj.get(registeredMiddlewares, middleware)}`
-      ));
-      resolvedMiddlewares.push(resolveMiddleware);
-    }
-
-    return resolvedMiddlewares;
+    return [];
   }
 
-  execute(req, res) {
+  execute(req, res, next) {
     if (!this.action) {
-      return this.controller(req, res);
+      return this.controller(req, res, next);
     }
 
-    return new this.controller(req, res)[this.action]();
+    return new this.controller()[this.action](req, res, next);
   }
 }
-
-module.exports = Route;

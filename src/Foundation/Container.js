@@ -1,7 +1,7 @@
 'use strict';
 
-const { _str, _obj } = require('tiny-supporter');
-const path = require('path');
+import { _str, _obj } from 'tiny-supporter';
+import path from 'path';
 
 const Container = (() => {
   let instance;
@@ -77,4 +77,4 @@ const Container = (() => {
   };
 })();
 
-module.exports = Container;
+export default Container;

@@ -1,28 +1,36 @@
-'use strict';
+import express from 'express';
+import { _obj } from 'tiny-supporter';
+import Container from './Container.js';
+import Config from './Config.js';
+import RootAppServiceProvider from './Providers/AppServiceProvider.js';
+import RootRouteServiceProvider from './Providers/RouteServiceProvider.js';
 
-const express = require('express');
-const { _obj } = require('tiny-supporter');
-const Container = require('./Container');
-const Config = require('./Config');
-const RootAppServiceProvider = require('./Providers/AppServiceProvider');
-const RootRouteServiceProvider = require('./Providers/RouteServiceProvider');
-
-const Application = function ({ baseDir = '/', configs = [] }) {
+export default (function Application () {
   const server = express();
-  const config = Config().loadConfig(configs);
+  let basePath;
+  let config;
   const registeredProviders = [];
   const registeredMiddlewares = [];
   const container = Container.getInstance();
-  container.setBaseDir(baseDir);
-  container.setConfig(config);
 
-  function getBaseDir(path) {
-    return baseDir + path.replace(/^\//, '');
+  function configure(data = { basePath: '/', configs: {} }) {
+    basePath = data.basePath;
+
+    config = Config().loadConfig(data.configs);
+
+    container.setBaseDir(basePath);
+    container.setConfig(config);
+
+    return this;
+  }
+
+  function getBasePath(path) {
+    return basePath + path.replace(/^\//, '');
   }
 
   function withRouting(routes) {
     const routesEntries = Object.entries(routes);
-    const routeServiceProviderInstance = new RootRouteServiceProvider({ server, baseDir, container });
+    const routeServiceProviderInstance = new RootRouteServiceProvider({ server, basePath, container });
     const registeredRoutes = [];
 
     for (const [prefix, route] of routesEntries) {
@@ -50,10 +58,10 @@ const Application = function ({ baseDir = '/', configs = [] }) {
     const appConfig = config.getConfig('app');
     const providers = _obj.get(appConfig, 'providers', []);
 
-    registeredProviders.push(new RootAppServiceProvider({ server, baseDir, container }));
+    registeredProviders.push(new RootAppServiceProvider({ server, basePath, container }));
 
     for (const serviceProvider of providers) {
-      registeredProviders.push(new serviceProvider({ server, baseDir, container }));
+      registeredProviders.push(new serviceProvider({ server, basePath, container }));
     }
   }
 
@@ -93,12 +101,11 @@ const Application = function ({ baseDir = '/', configs = [] }) {
   return {
     server,
     container,
-    getBaseDir,
+    configure,
+    getBasePath,
     withRouting,
     withMiddleware,
     create,
     run,
   };
-};
-
-module.exports = Application;
+})();

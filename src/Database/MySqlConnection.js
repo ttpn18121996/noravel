@@ -1,10 +1,8 @@
-'use strict';
+import mysql from 'mysql2';
+import Connection from './Connection.js';
+import Container from '../Foundation/Container.js';
 
-const Connection = require('./Connection');
-const Container = require('../Foundation/Container');
-const mysql = require('mysql2');
-
-class MySqlConnection extends Connection {
+export default class MySqlConnection extends Connection {
   constructor() {
     super();
     this.config = Container.getConfig('database.connections.mysql');
@@ -21,5 +19,3 @@ class MySqlConnection extends Connection {
     return this.connection;
   }
 }
-
-module.exports = MySqlConnection;

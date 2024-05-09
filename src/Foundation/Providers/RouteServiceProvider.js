@@ -1,6 +1,6 @@
-const ServiceProvider = require('./ServiceProvider');
+import ServiceProvider from './ServiceProvider.js';
 
-class RouteServiceProvider extends ServiceProvider {
+export default class RouteServiceProvider extends ServiceProvider {
   constructor(app) {
     super(app);
     this.registeredRoutes = [];
@@ -22,5 +22,3 @@ class RouteServiceProvider extends ServiceProvider {
     });
   }
 }
-
-module.exports = RouteServiceProvider;

@@ -1,10 +1,8 @@
-'use strict';
+import express from 'express';
+import expressHandlebars from 'express-handlebars';
+import ServiceProvider from './ServiceProvider.js';
 
-const express = require('express');
-const expressHandlebars = require('express-handlebars');
-const ServiceProvider = require('./ServiceProvider');
-
-class AppServiceProvider extends ServiceProvider {
+export default class AppServiceProvider extends ServiceProvider {
   register() {
     // Register view engine
     this.app.engine(
@@ -28,5 +26,3 @@ class AppServiceProvider extends ServiceProvider {
     });
   }
 }
-
-module.exports = AppServiceProvider;

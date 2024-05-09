@@ -1,9 +1,7 @@
-'use strict';
+import { Pool } from 'pg';
+import Connection from './Connection.js';
 
-const Connection = require('./Connection');
-const { Pool } = require('pg');
-
-class PostgresConnection extends Connection {
+export default class PostgresConnection extends Connection {
   constructor() {
     super();
     this.config = require('../Foundation/Config')().getConfig('database.connections.postgres');
@@ -21,5 +19,3 @@ class PostgresConnection extends Connection {
     return this.connection;
   }
 }
-
-module.exports = PostgresConnection;

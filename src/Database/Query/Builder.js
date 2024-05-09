@@ -1,5 +1,3 @@
-'use strict';
-
 const _operators = [
   '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
   'like', 'like binary', 'not like', 'ilike',
@@ -10,7 +8,7 @@ const _operators = [
   'in', 'not in'
 ];
 
-class Builder {
+export default class Builder {
   constructor(ConnectionFactory) {
     this.connectionFactory = ConnectionFactory;
     this.connection = ConnectionFactory.getConnection();
@@ -57,5 +55,3 @@ class Builder {
     return await conn.execute(sql, data);
   }
 }
-
-module.exports = Builder;

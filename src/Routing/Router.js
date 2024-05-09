@@ -1,8 +1,7 @@
-'use strict';
+import { Router as ExpressRouter } from 'express';
+import Route from './Route.js';
 
-const Route = require('./Route');
-
-const Router = () => {
+export default (() => {
   const routeRegistered = {
     get: [],
     post: [],
@@ -10,7 +9,7 @@ const Router = () => {
     patch: [],
     delete: [],
     options: [],
-  }
+  };
 
   const add = (method, uri, action) => {
     const newRoute = new Route(uri, action);
@@ -33,19 +32,17 @@ const Router = () => {
       return routeRegistered;
     },
     run: () => {
-      const ExpressRouter = require('express').Router();
+      const router = ExpressRouter();
       const routeEntries = Object.entries(routeRegistered);
       for (const [method, routes] of routeEntries) {
         for (const route of routes) {
           const middlewares = route.resolveMiddlewares();
-          middlewares.push((req, res) => route.execute(req, res));
-          ExpressRouter[method](route.uri, ...middlewares);
+          middlewares.push((req, res, next) => route.execute(req, res, next));
+          router[method](route.uri, ...middlewares);
         }
       }
 
-      return ExpressRouter;
+      return router;
     },
   };
-}
-
-module.exports = Router;
+})();

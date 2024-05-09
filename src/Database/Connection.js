@@ -1,6 +1,4 @@
-'use strict';
-
-class Connection {
+export default class Connection {
   checkConnection() {
     this.connection.connect(err => {
       if (err) {
@@ -12,5 +10,3 @@ class Connection {
     });
   }
 }
-
-module.exports = Connection;

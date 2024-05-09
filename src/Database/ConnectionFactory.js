@@ -1,13 +1,13 @@
-'use strict';
+import { _obj } from 'tiny-supporter';
+import Container from '../Foundation/Container.js';
+import MySqlConnection from './MySqlConnection.js';
+import PostgresConnection from './PostgresConnection.js';
 
-const { _obj } = require('tiny-supporter');
-const Container = require('../Foundation/Container');
-
-class ConnectionFactory {
+export default class ConnectionFactory {
   getDriver(key = null) {
     const drivers = {
-      mysql: 'MySqlConnection',
-      postgres: 'PostgresConnection',
+      mysql: MySqlConnection,
+      postgres: PostgresConnection,
     };
 
     if (key) {
@@ -21,11 +21,8 @@ class ConnectionFactory {
     const databaseConfig = Container.getConfig('database');
     connectionName = connectionName ?? _obj.get(databaseConfig, 'default');
     const driver = _obj.get(databaseConfig, `connections.${connectionName}.driver`);
-    const connection = require(`./${this.getDriver(driver)}`);
-    const connectionInstance = new connection();
+    const connectionInstance = new this.getDriver()[driver]();
 
     return connectionInstance.getConnection();
   }
-};
-
-module.exports = ConnectionFactory;
+}
