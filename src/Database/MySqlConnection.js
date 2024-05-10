@@ -29,6 +29,8 @@ export default class MySqlConnection extends Connection {
   async execute(sql, data = []) {
     const conn = await this.getConnection();
 
-    return conn.execute(sql, data);
+    const [rows] = await conn.execute(sql, data);
+
+    return rows;
   }
 }
