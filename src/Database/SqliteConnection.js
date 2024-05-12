@@ -32,4 +32,8 @@ export default class SqliteConnection extends Connection {
       conn.close();
     });
   }
+
+  toSql() {
+    return '';
+  }
 }

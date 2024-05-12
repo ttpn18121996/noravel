@@ -1,7 +1,7 @@
 import { _obj } from 'tiny-supporter';
 import Container from '../Foundation/Container.js';
 import MySqlConnection from './MySqlConnection.js';
-import PostgresConnection from './PostgresConnection.js';
+import PostgreSqlConnection from './PostgreSqlConnection.js';
 import SqliteConnection from './SqliteConnection.js';
 
 export default class ConnectionFactory {
@@ -20,7 +20,7 @@ export default class ConnectionFactory {
   getDriver(key = null) {
     const drivers = {
       mysql: MySqlConnection,
-      postgres: PostgresConnection,
+      postgres: PostgreSqlConnection,
       sqlite: SqliteConnection,
     };
 

@@ -2,6 +2,7 @@ import express from 'express';
 import expressHandlebars from 'express-handlebars';
 import ServiceProvider from './ServiceProvider.js';
 import MySqlConnection from '../../Database/MySqlConnection.js';
+import Config from '../Config.js';
 
 export default class AppServiceProvider extends ServiceProvider {
   register() {
@@ -19,11 +20,8 @@ export default class AppServiceProvider extends ServiceProvider {
     // Register static files
     this.app.use(express.static('public'));
 
-    this.container.bind('mysqlConnection', () => {
-      return new MySqlConnection();
-    });
     this.container.bind('Config', () => {
-      return require('../Config')();
+      return Config();
     });
   }
 }
