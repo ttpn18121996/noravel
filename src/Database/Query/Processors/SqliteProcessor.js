@@ -1,17 +1,17 @@
 import Processor from './Processor.js';
 
 export default class SqliteProcessor extends Processor {
-  compileLimit(limit = null, offset = null) {
-    let result = '';
+  compileLimit(limit, offset) {
+    let sql = '';
 
-    if (limit !== null) {
-      result += ` LIMIT ${limit}`;
+    if (limit !== null && limit !== undefined) {
+      sql += ` LIMIT ${limit}`;
     }
 
-    if (offset !== null) {
-      result += ` OFFSET ${offset}`;
+    if (offset !== null && offset !== undefined) {
+      sql += ` OFFSET ${offset}`;
     }
 
-    return result;
+    return sql;
   }
 }

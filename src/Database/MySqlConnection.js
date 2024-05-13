@@ -1,11 +1,11 @@
 import mysql from 'mysql2';
 import Connection from './Connection.js';
-import Container from '../Foundation/Container.js';
+import Config from '../Foundation/Config.js';
 
 export default class MySqlConnection extends Connection {
   constructor() {
     super();
-    this.config = Container.getInstance().getConfig('database.connections.mysql');
+    this.config = Config.getInstance().getConfig('database.connections.mysql');
   }
 
   async getConnection() {

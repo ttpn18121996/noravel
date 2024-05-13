@@ -19,9 +19,5 @@ export default class AppServiceProvider extends ServiceProvider {
 
     // Register static files
     this.app.use(express.static('public'));
-
-    this.container.bind('Config', () => {
-      return Config();
-    });
   }
 }

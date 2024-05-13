@@ -1,6 +1,6 @@
 import Builder from './Query/Builder.js';
 import ConnectionFactory from './ConnectionFactory.js';
-import Container from '../Foundation/Container.js';
+import Config from '../Foundation/Config.js';
 import MySqlProcessor from './Query/Processors/MySqlProcessor.js';
 import PostgreSqlProcessor from './Query/Processors/PostgreSqlProcessor.js';
 import SqliteProcessor from './Query/Processors/SqliteProcessor.js';
@@ -10,10 +10,10 @@ const DB = (() => {
 
   function getProcessor(name = null) {
     if (!name) {
-      name = Container.getInstance().getConfig('database.default');
+      name = Config.getInstance().getConfig('database.default');
     }
 
-    config = Container.getInstance().getConfig('database.connections.' + name);
+    config = Config.getInstance().getConfig('database.connections.' + name);
 
     switch (config.driver) {
       case 'mysql':

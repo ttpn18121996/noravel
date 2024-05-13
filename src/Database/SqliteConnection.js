@@ -1,11 +1,11 @@
 import sqlite3 from 'sqlite3';
 import Connection from './Connection.js';
-import Container from '../Foundation/Container.js';
+import Config from '../Foundation/Config.js';
 
 export default class SqliteConnection extends Connection {
   constructor() {
     super();
-    this.config = Container.getInstance().getConfig('database.connections.sqlite');
+    this.config = Config.getInstance().getConfig('database.connections.sqlite');
   }
 
   async getConnection() {

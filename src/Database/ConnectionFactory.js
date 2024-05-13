@@ -1,12 +1,12 @@
 import { _obj } from 'tiny-supporter';
-import Container from '../Foundation/Container.js';
+import Config from '../Foundation/Config.js';
 import MySqlConnection from './MySqlConnection.js';
 import PostgreSqlConnection from './PostgreSqlConnection.js';
 import SqliteConnection from './SqliteConnection.js';
 
 export default class ConnectionFactory {
   constructor() {
-    this.config = Container.getInstance().getConfig('database');
+    this.config = Config.getInstance().getConfig('database');
   }
 
   getConfig(key = null) {

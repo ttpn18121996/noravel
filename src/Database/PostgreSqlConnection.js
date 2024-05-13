@@ -1,11 +1,11 @@
 import pg from 'pg';
 import Connection from './Connection.js';
-import Container from '../Foundation/Container.js';
+import Config from '../Foundation/Config.js';
 
 export default class PostgreSqlConnection extends Connection {
   constructor() {
     super();
-    this.config = Container.getInstance().getConfig('database.connections.postgres');
+    this.config = Config.getInstance().getConfig('database.connections.postgres');
   }
 
   async getConnection() {

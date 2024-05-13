@@ -2,8 +2,9 @@ import express from 'express';
 import { _obj } from 'tiny-supporter';
 import Container from './Container.js';
 import Config from './Config.js';
-import RootAppServiceProvider from './Providers/AppServiceProvider.js';
-import RootRouteServiceProvider from './Providers/RouteServiceProvider.js';
+import AppServiceProvider from './Providers/AppServiceProvider.js';
+import RouteServiceProvider from './Providers/RouteServiceProvider.js';
+import SessionServiceProvider from '../Session/SessionServiceProvider.js';
 import Middleware from './Configuration/Middleware.js';
 
 export default (function Application () {
@@ -17,10 +18,16 @@ export default (function Application () {
   function configure(data = { basePath: '/', configs: {} }) {
     basePath = data.basePath;
 
-    config = Config().loadConfig(data.configs);
+    config = Config.getInstance().loadConfig(data.configs);
+
+    if (!config.getConfig('app.key')) {
+      throw new Error('APP_KEY does not exist, please create APP_KEY in the .env file');
+    }
 
     container.setBaseDir(basePath);
     container.setConfig(config);
+
+    pushBaseServiceProvider();
 
     return this;
   }
@@ -29,9 +36,14 @@ export default (function Application () {
     return basePath + path.replace(/^\//, '');
   }
 
+  function pushBaseServiceProvider() {
+    registeredProviders.push(new AppServiceProvider({ server, basePath, container }));
+    registeredProviders.push(new SessionServiceProvider({ server, basePath, container }));
+  }
+
   function withRouting(routes) {
     const routesEntries = Object.entries(routes);
-    const routeServiceProviderInstance = new RootRouteServiceProvider({ server, basePath, container });
+    const routeServiceProviderInstance = new RouteServiceProvider({ server, basePath, container });
     const registeredRoutes = [];
 
     for (const [prefix, route] of routesEntries) {
@@ -56,8 +68,6 @@ export default (function Application () {
   function makeServiceProvider() {
     const appConfig = config.getConfig('app');
     const providers = _obj.get(appConfig, 'providers', []);
-
-    registeredProviders.push(new RootAppServiceProvider({ server, basePath, container }));
 
     for (const serviceProvider of providers) {
       registeredProviders.push(new serviceProvider({ server, basePath, container }));
