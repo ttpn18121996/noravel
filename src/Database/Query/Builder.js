@@ -52,6 +52,7 @@ export default class Builder {
     this.offset = null;
     this.groups = null;
     this.havings = [];
+    this.orders = [];
   }
 
   connection(connectionName) {
@@ -435,8 +436,19 @@ export default class Builder {
    * @param {string} direction
    * @returns this
    */
-  orderBy(column, direction = 'asc') {
+  orderBy(column, direction = 'ASC') {
+    this.orders.push([column, direction.toUpperCase()]);
+
     return this;
+  }
+  
+  /**
+   * Add a descending "order by" clause to the query.
+   * @param {string} column
+   * @returns this
+   */
+  orderByDesc(column) {
+    return this.orderBy(column, 'DESC');
   }
 
   /**
@@ -489,6 +501,14 @@ export default class Builder {
 
     if (!empty(this.wheres)) {
       sql += this.processor.compileWhere(this.wheres);
+    }
+
+    // GroupBy
+
+    // Having
+
+    if (!empty(this.orders)) {
+      sql += this.processor.compileOrderBy(this.orders);
     }
 
     sql += this.processor.compileLimit(this.limit, this.offset);

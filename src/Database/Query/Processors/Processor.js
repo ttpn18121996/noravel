@@ -102,6 +102,10 @@ export default class Processor {
     return sql;
   }
 
+  compileOrderBy(orders) {
+    return ' ORDER BY ' + orders.map(([column, direction]) => `${column} ${direction}`).join(', ');
+  }
+
   getBindings() {
     return this.params;
   }
