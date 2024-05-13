@@ -8,6 +8,7 @@ export default class SessionServiceProvider extends ServiceProvider {
       secret: this.container.getConfig('app.key'),
       resave: false,
       saveUninitialized: false,
+      cookie: {},
     };
 
     if (! expireOnClose) {
