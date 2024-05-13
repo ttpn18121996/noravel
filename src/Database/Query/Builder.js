@@ -48,8 +48,8 @@ export default class Builder {
     this.distinct = false;
     this.wheres = [];
     this.joins = [];
-    this.limit = null;
-    this.offset = null;
+    this.limits = null;
+    this.offsets = null;
     this.groups = null;
     this.havings = [];
     this.orders = [];
@@ -461,7 +461,7 @@ export default class Builder {
    * @returns this
    */
   offset(offset) {
-    this.offset = offset;
+    this.offsets = offset;
 
     return this;
   }
@@ -472,7 +472,7 @@ export default class Builder {
    * @returns this
    */
   limit(limit) {
-    this.limit = limit;
+    this.limits = limit;
 
     return this;
   }
@@ -517,7 +517,7 @@ export default class Builder {
       sql += this.processor.compileOrderBy(this.orders);
     }
 
-    sql += this.processor.compileLimit(this.limit, this.offset);
+    sql += this.processor.compileLimit(this.limits, this.offsets);
 
     return sql;
   }
