@@ -343,6 +343,10 @@ export default class Builder {
    * @returns this
    */
   whereBetween(column, values = [], boolean = 'AND', not = false) {
+    const operator = not ? 'NOT BETWEEN' : 'BETWEEN';
+
+    this.wheres.push([column, operator, values, boolean]);
+
     return this;
   }
 
@@ -503,7 +507,9 @@ export default class Builder {
       sql += this.processor.compileWhere(this.wheres);
     }
 
-    // GroupBy
+    if (!empty(this.groups)) {
+      sql += this.processor.compileGroup(this.groups);
+    }
 
     // Having
 
