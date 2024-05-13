@@ -1,13 +1,11 @@
-'use strict';
+import mysql from 'mysql2';
+import Connection from './Connection.js';
+import Config from '../Foundation/Config.js';
 
-const Connection = require('./Connection');
-const Container = require('../Foundation/Container');
-const mysql = require('mysql2');
-
-class MySqlConnection extends Connection {
+export default class MySqlConnection extends Connection {
   constructor() {
     super();
-    this.config = Container.getConfig('database.connections.mysql');
+    this.config = Config.getInstance().getConfig('database.connections.mysql');
   }
 
   async getConnection() {
@@ -16,10 +14,23 @@ class MySqlConnection extends Connection {
       this.connection = await mysql.createConnectionPromise({ host, port, user: username, password, database });
     }
 
-    this.checkConnection();
+    this.connection.connect(err => {
+      if (err) {
+        console.log(`Error connecting: ${err}`);
+        return;
+      }
+
+      console.log(this.constructor.name + ' connection successful! ' + this.connection.threadId);
+    });
 
     return this.connection;
   }
-}
 
-module.exports = MySqlConnection;
+  async execute(sql, data = []) {
+    const conn = await this.getConnection();
+
+    const [rows] = await conn.execute(sql, data);
+
+    return rows;
+  }
+}

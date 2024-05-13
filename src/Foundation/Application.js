@@ -1,28 +1,49 @@
-'use strict';
+import express from 'express';
+import { _obj } from 'tiny-supporter';
+import Container from './Container.js';
+import Config from './Config.js';
+import AppServiceProvider from './Providers/AppServiceProvider.js';
+import RouteServiceProvider from './Providers/RouteServiceProvider.js';
+import SessionServiceProvider from '../Session/SessionServiceProvider.js';
+import Middleware from './Configuration/Middleware.js';
 
-const express = require('express');
-const { _obj } = require('tiny-supporter');
-const Container = require('./Container');
-const Config = require('./Config');
-const RootAppServiceProvider = require('./Providers/AppServiceProvider');
-const RootRouteServiceProvider = require('./Providers/RouteServiceProvider');
-
-const Application = function ({ baseDir = '/', configs = [] }) {
+export default (function Application () {
   const server = express();
-  const config = Config().loadConfig(configs);
+  let basePath;
+  let config;
   const registeredProviders = [];
-  const registeredMiddlewares = [];
+  const middleware = new Middleware();
   const container = Container.getInstance();
-  container.setBaseDir(baseDir);
-  container.setConfig(config);
 
-  function getBaseDir(path) {
-    return baseDir + path.replace(/^\//, '');
+  function configure(data = { basePath: '/', configs: {} }) {
+    basePath = data.basePath;
+
+    config = Config.getInstance().loadConfig(data.configs);
+
+    if (!config.getConfig('app.key')) {
+      throw new Error('APP_KEY does not exist, please create APP_KEY in the .env file');
+    }
+
+    container.setBaseDir(basePath);
+    container.setConfig(config);
+
+    pushBaseServiceProvider();
+
+    return this;
+  }
+
+  function getBasePath(path) {
+    return basePath + path.replace(/^\//, '');
+  }
+
+  function pushBaseServiceProvider() {
+    registeredProviders.push(new AppServiceProvider({ server, basePath, container }));
+    registeredProviders.push(new SessionServiceProvider({ server, basePath, container }));
   }
 
   function withRouting(routes) {
     const routesEntries = Object.entries(routes);
-    const routeServiceProviderInstance = new RootRouteServiceProvider({ server, baseDir, container });
+    const routeServiceProviderInstance = new RouteServiceProvider({ server, basePath, container });
     const registeredRoutes = [];
 
     for (const [prefix, route] of routesEntries) {
@@ -38,10 +59,8 @@ const Application = function ({ baseDir = '/', configs = [] }) {
     return this;
   }
 
-  function withMiddleware(middlewares = []) {
-    for (const middleware of middlewares) {
-      registeredMiddlewares.push(middleware);
-    }
+  function withMiddleware(callback) {
+    callback(middleware);
     
     return this;
   }
@@ -50,10 +69,8 @@ const Application = function ({ baseDir = '/', configs = [] }) {
     const appConfig = config.getConfig('app');
     const providers = _obj.get(appConfig, 'providers', []);
 
-    registeredProviders.push(new RootAppServiceProvider({ server, baseDir, container }));
-
     for (const serviceProvider of providers) {
-      registeredProviders.push(new serviceProvider({ server, baseDir, container }));
+      registeredProviders.push(new serviceProvider({ server, basePath, container }));
     }
   }
 
@@ -93,12 +110,11 @@ const Application = function ({ baseDir = '/', configs = [] }) {
   return {
     server,
     container,
-    getBaseDir,
+    configure,
+    getBasePath,
     withRouting,
     withMiddleware,
     create,
     run,
   };
-};
-
-module.exports = Application;
+})();

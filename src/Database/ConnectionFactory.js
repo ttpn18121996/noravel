@@ -1,13 +1,27 @@
-'use strict';
+import { _obj } from 'tiny-supporter';
+import Config from '../Foundation/Config.js';
+import MySqlConnection from './MySqlConnection.js';
+import PostgreSqlConnection from './PostgreSqlConnection.js';
+import SqliteConnection from './SqliteConnection.js';
 
-const { _obj } = require('tiny-supporter');
-const Container = require('../Foundation/Container');
+export default class ConnectionFactory {
+  constructor() {
+    this.config = Config.getInstance().getConfig('database');
+  }
 
-class ConnectionFactory {
+  getConfig(key = null) {
+    if (key) {
+      return _obj.get(this.config, key);
+    }
+
+    return this.config;
+  }
+
   getDriver(key = null) {
     const drivers = {
-      mysql: 'MySqlConnection',
-      postgres: 'PostgresConnection',
+      mysql: MySqlConnection,
+      postgres: PostgreSqlConnection,
+      sqlite: SqliteConnection,
     };
 
     if (key) {
@@ -18,14 +32,10 @@ class ConnectionFactory {
   }
 
   getConnection(connectionName) {
-    const databaseConfig = Container.getConfig('database');
-    connectionName = connectionName ?? _obj.get(databaseConfig, 'default');
-    const driver = _obj.get(databaseConfig, `connections.${connectionName}.driver`);
-    const connection = require(`./${this.getDriver(driver)}`);
-    const connectionInstance = new connection();
+    connectionName = connectionName ?? this.getConfig('default');
+    const driver = _obj.get(this.config, `connections.${connectionName}.driver`);
+    const connectionInstance = new (this.getDriver()[driver])();
 
-    return connectionInstance.getConnection();
+    return connectionInstance;
   }
-};
-
-module.exports = ConnectionFactory;
+}

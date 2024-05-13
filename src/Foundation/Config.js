@@ -1,28 +1,37 @@
-'use strict';
+import { _obj } from 'tiny-supporter';
 
-const { _obj } = require('tiny-supporter');
+const Config = (function () {
+  let instance;
 
-const Config = function () {
-  const configs = {};
+  function init() {
+    const configs = {};
 
-  function loadConfig(loaders = {}) {
-    const loaderEntries = Object.entries(loaders);
-    for (const [key, loader] of loaderEntries) {
-      configs[key] = loader;
+    return {
+      loadConfig(loaders = {}) {
+        const loaderEntries = Object.entries(loaders);
+        for (const [key, loader] of loaderEntries) {
+          configs[key] = loader;
+        }
+    
+        return this;
+      },
+      getConfig(key = null) {
+        if (key === null || key === undefined || key === '') {
+          return configs;
+        }
+        return _obj.get(configs, key, null);
+      },
     }
-
-    return this;
   }
 
   return {
-    loadConfig,
-    getConfig(key = null) {
-      if (key === null || key === undefined || key === '') {
-        return configs;
+    getInstance() {
+      if (!instance) {
+        instance = init();
       }
-      return _obj.get(configs, key, null);
+      return instance;
     },
   };
-};
+})();
 
-module.exports = Config;
+export default Config;

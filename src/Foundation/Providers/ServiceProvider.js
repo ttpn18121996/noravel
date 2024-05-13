@@ -1,6 +1,4 @@
-'use strict';
-
-class ServiceProvider {
+export default class ServiceProvider {
   constructor(app) {
     this.app = app.server;
     this.baseDir = app.baseDir;
@@ -16,5 +14,3 @@ class ServiceProvider {
 
   boot() {}
 }
-
-module.exports = ServiceProvider;
