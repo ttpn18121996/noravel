@@ -61,6 +61,12 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Set the name and the alias of the table to query.
+   * @param {string} tableName the name of the table to query.
+   * @param {string|null} alias the alias of the table.
+   * @returns this
+   */
   table(tableName, alias = null) {
     const [table, tableAlias] = tableName.split(' as ');
 
@@ -71,8 +77,8 @@ export default class Builder {
   }
 
   /**
-   * Set columns for query.
-   * @param  {...any} args a list of the column
+   * Set the columns to be selected.
+   * @param  {...any} args a list of the column.
    * @returns this
    */
   select(...args) {
@@ -85,6 +91,11 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Add a new select column to the query.
+   * @param  {...any} args a list of the additional columns.
+   * @returns this
+   */
   addSelect(...args) {
     let addedColumns = [];
     if (args.length === 1 && Array.isArray(args[0])) {
@@ -98,6 +109,15 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Add a join clause to the query.
+   * @param {string} table table name to join.
+   * @param {string|function} first
+   * @param {string} operator
+   * @param {string|null} second
+   * @param {string} type
+   * @returns this
+   */
   join(table, first, operator = '=', second = null, type = 'INNER') {
     const joinClause = new JoinClause(new Builder(this.connectionFactory, this.processor), table, type);
 
@@ -113,15 +133,39 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Add a left join to the query.
+   * @param {string} table
+   * @param {string|function} first
+   * @param {string} operator
+   * @param {string|null} second
+   * @returns this
+   */
   leftJoin(table, first, operator = '=', second = null) {
     return this.join(table, first, operator, second, 'LEFT');
   }
-  
+
+  /**
+   * Add a right join to the query.
+   * @param {string} table
+   * @param {string|function} first
+   * @param {string} operator
+   * @param {string|null} second
+   * @returns this
+   */
   rightJoin(table, first, operator = '=', second = null) {
     return this.join(table, first, operator, second, 'RIGHT');
   }
 
-  where(column, operator, value = null, boolean = 'AND') {
+  /**
+   * Add a basic where clause to the query.
+   * @param {string|array|function} column
+   * @param {string|null} operator
+   * @param {any} value
+   * @param {string} boolean
+   * @returns this
+   */
+  where(column, operator = null, value = null, boolean = 'AND') {
     if (Array.isArray(column)) {
       return this.addArrayOfWheres(column, boolean);
     }
@@ -148,6 +192,13 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Add an array of where clauses to the query.
+   * @param {array} column
+   * @param {string} boolean
+   * @param {string} method
+   * @returns this
+   */
   addArrayOfWheres(column = [], boolean = 'AND', method = 'where') {
     for (let key = 0; key < column.length; key++) {
       const value = column[key];
@@ -158,42 +209,97 @@ export default class Builder {
     return this;
   }
 
+  /**
+   * Prepare the value and operator for a where clause..
+   * @param {string} value
+   * @param {string} operator
+   * @param {boolean} useDefault
+   * @returns array
+   *
+   * @throws RangeError
+   */
   prepareValueAndOperator(value, operator, useDefault = false) {
     if (useDefault) {
       return [operator, '='];
     } else if (value === null && _operators.includes(operator) && !['=', '<>', '!='].includes(operator)) {
-      throw new Error('Operator and value invalid.');
+      throw new RangeError('Operator and value invalid.');
     }
 
     return [value, operator];
   }
 
+  /**
+   * Determine if the given operator is supported.
+   * @param {string} operator
+   * @returns boolean
+   */
   invalidOperator(operator) {
     return !_operators.includes(operator.toLowerCase());
   }
 
-  orWhere(column, operator, value = null) {
+  /**
+   * Add an "or where" clause to the query.
+   * @param {string|array|function} column
+   * @param {string|null} operator
+   * @param {any} value
+   * @returns this
+   */
+  orWhere(column, operator = null, value = null) {
     [value, operator] = this.prepareValueAndOperator(value, operator, arguments.length === 2);
 
     return this.where(column, operator, value, 'OR');
   }
 
+  /**
+   * Add a "where in" clause to the query.
+   * @param {string} column
+   * @param {array} list
+   * @param {string} boolean
+   * @param {boolean} not
+   * @returns this
+   */
   whereIn(column, list = [], boolean = 'AND', not = 'IN') {
     return this.where(column, not, list, boolean);
   }
 
-  whereNotIn(column, list = [], boolean = 'AND') {
-    return this.whereIn(column, list, boolean, 'NOT IN');
-  }
-
+  /**
+   * Add an "or where in" clause to the query.
+   * @param {string} column
+   * @param {array} list
+   * @returns this
+   */
   orWhereIn(column, list = []) {
     return this.whereIn(column, list, 'OR');
   }
 
+  /**
+   * Add a "where not in" clause to the query.
+   * @param {string} column
+   * @param {array} list
+   * @param {string} boolean
+   * @returns this
+   */
+  whereNotIn(column, list = [], boolean = 'AND') {
+    return this.whereIn(column, list, boolean, 'NOT IN');
+  }
+
+  /**
+   * Add a "or where not in" clause to the query.
+   * @param {string} column
+   * @param {array} list
+   * @returns this
+   */
   orWhereNotIn(column, list = []) {
     return this.whereNotIn(column, list, 'OR');
   }
 
+  /**
+   * Add a "where null" clause to the query.
+   * @param {string|array} columns
+   * @param {string} boolean
+   * @param {boolean} not
+   * @returns this
+   */
   whereNull(columns, boolean = 'AND', not = false) {
     const operator = not ? 'NOT NULL' : 'NULL';
 
@@ -208,18 +314,82 @@ export default class Builder {
     return this;
   }
 
-  whereNotNull(columns, boolean = 'AND') {
-    return this.whereNull(columns, boolean, true);
-  }
-
+  /**
+   * Add an "or where null" clause to the query.
+   * @param {string|array} columns
+   * @returns this
+   */
   orWhereNull(columns) {
     return this.whereNull(columns, 'OR');
   }
 
+  /**
+   * Add a "where not null" clause to the query.
+   * @param {string|array} columns
+   * @param {string} boolean
+   * @returns this
+   */
+  whereNotNull(columns, boolean = 'AND') {
+    return this.whereNull(columns, boolean, true);
+  }
+
+  /**
+   * Add a where between statement to the query.
+   * @param {string} column
+   * @param {array} values
+   * @param {string} boolean
+   * @param {boolean} not
+   * @returns this
+   */
+  whereBetween(column, values = [], boolean = 'AND', not = false) {
+    return this;
+  }
+
+  /**
+   * Add an or where between statement to the query.
+   * @param {string} column
+   * @param {array} values
+   * @returns this
+   */
+  orWhereBetween(column, values = []) {
+    return this.whereBetween(column, values, 'OR');
+  }
+
+  /**
+   * Add an or where between statement to the query.
+   * @param {string} column
+   * @param {array} values
+   * @param {string} boolean
+   * @returns this
+   */
+  whereNotBetween(column, values = [], boolean = 'AND') {
+    return this.whereBetween(column, values, boolean, true);
+  }
+
+  /**
+   * Add an or where not between statement to the query.
+   * @param {string} column
+   * @param {array} values
+   * @returns this
+   */
+  orWhereNotBetween(column, values = []) {
+    return this.whereNotBetween(column, values, 'OR', true);
+  }
+
+  /**
+   * Add an "or where not null" clause to the query.
+   * @param {string|array} columns
+   * @returns this
+   */
   orWhereNotNull(columns) {
     return this.whereNotNull(columns, 'OR');
   }
 
+  /**
+   * Add a "group by" clause to the query.
+   * @param  {...any} args
+   * @returns this
+   */
   groupBy(...args) {
     if (Array.isArray(args[0])) {
       this.groups = args[0];
@@ -230,7 +400,15 @@ export default class Builder {
     return this;
   }
 
-  having(column, operator, value, boolean = 'AND') {
+  /**
+   * Add a "having" clause to the query.
+   * @param {string|function} column
+   * @param {string|number|null} operator
+   * @param {string|number|null} value
+   * @param {string} boolean
+   * @returns this
+   */
+  having(column, operator = null, value = null, boolean = 'AND') {
     if (Array.isArray(column)) {
       return this.addArrayOfWheres(column, boolean, 'having');
     }
@@ -240,22 +418,55 @@ export default class Builder {
     return this;
   }
 
-  orHaving(column, operator, value) {
+  /**
+   * Add an "or having" clause to the query.
+   * @param {string|function} column
+   * @param {string|number|null} operator
+   * @param {string|number|null} value
+   * @returns this
+   */
+  orHaving(column, operator = null, value = null) {
     return this.having(column, operator, value, 'OR');
   }
 
-  limit(limit) {
-    this.limit = limit;
-
+  /**
+   * Add an "order by" clause to the query.
+   * @param {string} column
+   * @param {string} direction
+   * @returns this
+   */
+  orderBy(column, direction = 'asc') {
     return this;
   }
 
+  /**
+   * Set the "offset" value of the query.
+   * @param {number} offset
+   * @returns this
+   */
   offset(offset) {
     this.offset = offset;
 
     return this;
   }
 
+  /**
+   * Set the "limit" value of the query.
+   * @param {number} limit
+   * @returns this
+   */
+  limit(limit) {
+    this.limit = limit;
+
+    return this;
+  }
+
+  /**
+   * Set the "limit" and the "offset" value of the query.
+   * @param {number} limit
+   * @param {number} start
+   * @returns this
+   */
   take(limit, start = 0) {
     return this.limit(limit).offset(start);
   }
@@ -285,18 +496,18 @@ export default class Builder {
     return sql;
   }
 
-  async get(columns = null) {
-    return await this.execute(this.compileSelect(columns), this.getBindings());
-  }
-
+  /**
+   * Get the SQL representation of the query.
+   * @returns string
+   */
   toSql() {
     return this.compileSelect();
   }
 
-  getBindings() {
-    return this.processor.getBindings();
-  }
-
+  /**
+   * Get the raw SQL representation of the query with embedded bindings.
+   * @returns string
+   */
   toRawSql() {
     let sql = this.toSql();
     const bindings = [...this.getBindings()];
@@ -315,6 +526,27 @@ export default class Builder {
     return sql;
   }
 
+  /**
+   * Get the current query value bindings in a flattened array.
+   * @returns array
+   */
+  getBindings() {
+    return this.processor.getBindings();
+  }
+
+  /**
+   * Execute the query as a "select" statement.
+   * @param {array|string} columns
+   * @returns array
+   */
+  async get(columns = null) {
+    return await this.execute(this.compileSelect(columns), this.getBindings());
+  }
+
+  /**
+   * Dump the current SQL and bindings.
+   * @returns void
+   */
   dd() {
     return {
       sql: this.toSql(),
@@ -322,6 +554,12 @@ export default class Builder {
     };
   }
 
+  /**
+   * Execute the query manually.
+   * @param {string} sql
+   * @param {array} data
+   * @returns array
+   */
   async execute(sql, data = []) {
     return await this.connection.execute(sql, data);
   }
