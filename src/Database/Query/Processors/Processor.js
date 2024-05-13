@@ -33,15 +33,21 @@ export default class Processor {
 
         sql += ')';
       } else {
-        if (conditions[1] === 'IN' || conditions[1] === 'NOT IN') {
+        if (['IN', 'NOT IN'].includes(conditions[1])) {
           sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').get().join(',')})`;
-        } else if (conditions[1] === 'BETWEEN' || conditions[1] === 'NOT BETWEEN') {
+        } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
           sql += `${conditions[0]} ${conditions[1]} ? AND ?`;
         } else {
           sql += `${conditions[0]} ${conditions[1]} ${conditions[2] === null ? '' : '?'}`;
         }
 
-        this.params.push(conditions[2]);
+        if (Array.isArray(conditions[2]) && ['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
+          const [from, to] = conditions[2];
+          this.params.push(from);
+          this.params.push(to);
+        } else {
+          this.params.push(conditions[2]);
+        }
       }
     }
 
