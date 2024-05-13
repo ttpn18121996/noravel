@@ -65,7 +65,7 @@ export default class Processor {
   }
 
   compileGroup(groups) {
-    return 'GROUP BY ' + groups.join(', ');
+    return ' GROUP BY ' + groups.join(', ');
   }
   
   compileHaving(havings) {
