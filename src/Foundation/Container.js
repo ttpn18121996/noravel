@@ -66,8 +66,8 @@ const Container = (() => {
         config = data;
       },
 
-      getConfig(key) {
-        return config.getConfig(key);
+      getConfig(key, defaultValue = null) {
+        return config.getConfig(key, defaultValue);
       },
     };
   }

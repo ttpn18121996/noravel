@@ -15,11 +15,11 @@ const Config = (function () {
     
         return this;
       },
-      getConfig(key = null) {
+      getConfig(key = null, defaultValue = null) {
         if (key === null || key === undefined || key === '') {
           return configs;
         }
-        return _obj.get(configs, key, null);
+        return _obj.get(configs, key, defaultValue);
       },
     }
   }
