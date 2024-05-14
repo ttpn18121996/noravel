@@ -12,7 +12,7 @@ export default class AppServiceProvider extends ServiceProvider {
 
   registerViews() {
     this.app.engine(
-      'express-handlebar',
+      '.html',
       expressHandlebars.engine({
         extname: '.html',
         defaultLayout: this.container.getConfig('view.default_layout', 'app'),
@@ -20,7 +20,7 @@ export default class AppServiceProvider extends ServiceProvider {
         partialsDir: this.container.getConfig('view.partials_dir', ['resources/views/partials']),
       }),
     );
-    this.app.set('view engine', 'express-handlebar');
+    this.app.set('view engine', '.html');
     this.app.set('views', this.container.getConfig('view.path'));
   }
 
