@@ -1,5 +1,6 @@
 import { Router as ExpressRouter } from 'express';
 import Route from './Route.js';
+import { _obj } from 'tiny-supporter';
 
 export default class Router {
   constructor() {
@@ -11,10 +12,16 @@ export default class Router {
       delete: [],
       options: [],
     };
+    this.options = {
+      middleware: [],
+      prefix: '',
+    };
   }
 
   add(method, uri, action) {
-    const newRoute = new Route(uri, action);
+    const uriWithPrefix = _obj.get(this.options, 'prefix', '') + uri;
+    const newRoute = new Route(uriWithPrefix, action);
+    newRoute.middleware(_obj.get(this.options, 'middleware', []));
 
     if (this.routeRegistered?.[method.toLowerCase()]) {
       this.routeRegistered[method.toLowerCase()].push(newRoute);
@@ -45,6 +52,15 @@ export default class Router {
 
   options(uri, action) {
     return this.add('options', uri, action);
+  }
+
+  group(options, callback) {
+    this.options = { ...this.options, ...options };
+    callback();
+    this.options = {
+      middleware: [],
+      prefix: '',
+    };
   }
 
   run() {

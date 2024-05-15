@@ -1,5 +1,6 @@
 import express from 'express';
 import ServiceProvider from './ServiceProvider.js';
+import { _obj } from 'tiny-supporter';
 
 export default class RouteServiceProvider extends ServiceProvider {
   constructor(app) {
@@ -16,17 +17,26 @@ export default class RouteServiceProvider extends ServiceProvider {
     this.app.use(express.urlencoded({ extended: true }))
 
     for (const route of this.registeredRoutes) {
-      this.app.use(route.prefix, route.route);
+      this.app.use(route.prefix, route.route.run());
     }
   }
 
   boot() {
+    this.customRequest();
+    this.customResponse();
+
+    this.app.use((req, res) => {
+      return res.status(404).render('errors/404', { layout: 'error' });
+    });
+  }
+
+  customRequest() {
     this.app.request.getQuery = function (key = null, defaultValue = null) {
       if (!key) {
         return this.query;
       }
 
-      return this.query?.[key] ?? defaultValue;
+      return _obj.get(this.query, key, defaultValue);
     };
     
     this.app.request.getPost = function (key = null, defaultValue = null) {
@@ -34,7 +44,7 @@ export default class RouteServiceProvider extends ServiceProvider {
         return this.body;
       }
 
-      return this.body?.[key] ?? defaultValue;
+      return _obj.get(this.body, key, defaultValue);
     };
     
     this.app.request.getInput = function (key = null, defaultValue = null) {
@@ -43,15 +53,25 @@ export default class RouteServiceProvider extends ServiceProvider {
         return input;
       }
 
-      return input?.[key] ?? defaultValue;
+      return _obj.get(input, key, defaultValue);
     };
 
+    this.app.request.getParam = function (key = null, defaultValue = null) {
+      if (!key) {
+        return this.params;
+      }
+
+      return _obj.get(this.params, key, defaultValue);
+    };
+  }
+
+  customResponse() {
     this.app.response.view = function (...args) {
       return this.render(...args);
     };
 
-    this.app.use((req, res) => {
-      return res.status(404).render('errors/404', { layout: 'error' });
-    });
+    this.app.response.abort = function (status = 400, message = 'Bad request') {
+      return this.status(status).render('errors/error', { layout: 'error', message, code: status });
+    };
   }
 }
