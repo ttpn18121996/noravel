@@ -523,6 +523,50 @@ export default class Builder {
   }
 
   /**
+   * Insert new records into the database.
+   * @param {array|object} data
+   * @returns boolean
+   */
+  async insert(data) {
+    if (empty(data)) {
+      return true;
+    }
+
+    let dataInsert = [];
+
+    if (typeOf(data) === 'object') {
+      dataInsert.push(data);
+    } else if (typeOf(data) === 'array') {
+      dataInsert = dataInsert.concat(data);
+    } else {
+      return true;
+    }
+
+    const sql = this.processor.compileInsert(this.from, dataInsert);
+    const bindings = this.processor.getBindings();
+
+    return await this.execute(sql, bindings);
+  }
+
+
+  /**
+   * Insert a new record and get the value of the primary key.
+   * @param {object} data
+   * @returns string|number
+   */
+  async create(data) {
+    if (typeOf(data) !== 'object') {
+      return null;
+    }
+
+    const sql = this.processor.compileInsert(this.from, [data]);
+    const bindings = this.processor.getBindings();
+    const _conn = this.connection;
+
+    return await _conn.insertGetId(sql, bindings, (err, id) => id);
+  }
+
+  /**
    * Get the SQL representation of the query.
    * @returns string
    */

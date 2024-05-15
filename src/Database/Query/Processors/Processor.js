@@ -114,6 +114,30 @@ export default class Processor {
     return ' ORDER BY ' + orders.map(([column, direction]) => `${column} ${direction}`).join(', ');
   }
 
+  compileInsert(table, data) {
+    let sql = `INSERT INTO ${table} `;
+    let values = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
+      let fields = Object.keys(value);
+
+      if (!i) {
+        sql += `(${fields.join(', ')}) VALUES (`;
+      }
+
+      sql += fields.map(_ => '?').join(', ') + '), (';
+
+      values = values.concat(Object.values(value));
+    }
+
+    this.params = this.params.concat(values);
+
+    sql = sql.replace(/\, \($/, '');
+
+    return sql;
+  }
+
   getBindings() {
     return this.params;
   }
