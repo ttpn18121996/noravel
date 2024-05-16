@@ -34,7 +34,7 @@ export default class Processor {
         sql += ')';
       } else {
         if (['IN', 'NOT IN'].includes(conditions[1])) {
-          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').get().join(',')})`;
+          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').join(',')})`;
         } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
           sql += `${conditions[0]} ${conditions[1]} ? AND ?`;
         } else {
