@@ -613,6 +613,12 @@ export default class Builder {
     return await this.execute(this.compileSelect(columns), this.getBindings());
   }
 
+  async first(columns = null) {
+    const result = await this.get(columns);
+
+    return _arr(result).first();
+  }
+
   /**
    * Dump the current SQL and bindings.
    * @returns void
