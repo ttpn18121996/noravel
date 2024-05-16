@@ -34,19 +34,17 @@ export default class Processor {
         sql += ')';
       } else {
         if (['IN', 'NOT IN'].includes(conditions[1])) {
-          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').get().join(',')})`;
+          this.params = this.params.concat(conditions[2]);
+          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').join(',')})`;
         } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
-          sql += `${conditions[0]} ${conditions[1]} ? AND ?`;
-        } else {
-          sql += `${conditions[0]} ${conditions[1]} ${conditions[2] === null ? '' : '?'}`;
-        }
-
-        if (Array.isArray(conditions[2]) && ['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
           const [from, to] = conditions[2];
           this.params.push(from);
           this.params.push(to);
+
+          sql += `${conditions[0]} ${conditions[1]} ? AND ?`;
         } else {
           this.params.push(conditions[2]);
+          sql += `${conditions[0]} ${conditions[1]} ${conditions[2] === null ? '' : '?'}`;
         }
       }
     }
@@ -112,6 +110,30 @@ export default class Processor {
 
   compileOrderBy(orders) {
     return ' ORDER BY ' + orders.map(([column, direction]) => `${column} ${direction}`).join(', ');
+  }
+
+  compileInsert(table, data) {
+    let sql = `INSERT INTO ${table} `;
+    let values = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
+      let fields = Object.keys(value);
+
+      if (!i) {
+        sql += `(${fields.join(', ')}) VALUES (`;
+      }
+
+      sql += fields.map(_ => '?').join(', ') + '), (';
+
+      values = values.concat(Object.values(value));
+    }
+
+    this.params = this.params.concat(values);
+
+    sql = sql.replace(/\, \($/, '');
+
+    return sql;
   }
 
   getBindings() {

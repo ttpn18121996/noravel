@@ -4,6 +4,7 @@ export default class Route {
   constructor(uri, action) {
     this.uri = uri;
     this.middlewares = [];
+    this.routeName = null;
     if (Array.isArray(action)) {
       this.controller = action[0];
       this.action = action[1];
@@ -34,6 +35,10 @@ export default class Route {
 
       return middleware;
     });
+  }
+
+  name(name) {
+    this.routeName = name;
   }
 
   execute(req, res, next) {
