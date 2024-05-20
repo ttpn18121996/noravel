@@ -1,5 +1,7 @@
-import { _arr, empty, typeOf } from 'tiny-supporter';
+import { _arr, _obj, empty, typeOf } from 'tiny-supporter';
 import JoinClause from './JoinClause.js';
+import SimplePaginator from '../../Pagination/SimplePaginator.js';
+import LengthAwarePaginator from '../../Pagination/LengthAwarePaginator.js';
 
 const _operators = [
   '=',
@@ -445,7 +447,7 @@ export default class Builder {
 
     return this;
   }
-  
+
   /**
    * Add a descending "order by" clause to the query.
    * @param {string} column
@@ -548,7 +550,6 @@ export default class Builder {
     return await this.execute(sql, bindings);
   }
 
-
   /**
    * Insert a new record and get the value of the primary key.
    * @param {object} data
@@ -597,26 +598,71 @@ export default class Builder {
   }
 
   /**
-   * Get the current query value bindings in a flattened array.
-   * @returns array
+   * Execute the query and get the first result.
+   * @param {array|string|null} columns
+   * @returns
    */
-  getBindings() {
-    return this.processor.getBindings();
+  async first(columns = null) {
+    const result = await this.take(1).get(columns);
+
+    return _arr(result).first();
+  }
+
+  /**
+   * Execute a query for a single record by ID.
+   * @param {number|string} id
+   * @param {array|string|null} columns
+   * @returns
+   */
+  async find(id, columns = null) {
+    return await this.where('id', id).first(columns);
   }
 
   /**
    * Execute the query as a "select" statement.
-   * @param {array|string} columns
+   * @param {array|string|null} columns
    * @returns array
    */
   async get(columns = null) {
     return await this.execute(this.compileSelect(columns), this.getBindings());
   }
 
-  async first(columns = null) {
-    const result = await this.get(columns);
+  /**
+   * 
+   * @param {number} perPage
+   * @param {number} currentPage
+   * @param {array} columns
+   * @param {string} pageName by default "page"
+   * @returns LengthAwarePaginator
+   */
+  async paginate(perPage, currentPage, columns = ['*'], pageName = 'page') {
+    const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
 
-    return _arr(result).first();
+    const total = _arr(await this.get([`COUNT ${this.from}.* as total`])).first()?.total || 0;
+
+    return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName });
+  }
+
+  /**
+   * 
+   * @param {number} perPage
+   * @param {number} currentPage
+   * @param {array} columns
+   * @param {string} pageName by default "page"
+   * @returns SimplePaginator
+   */
+  async simplePaginate(perPage, currentPage, columns = ['*'], pageName = 'page') {
+    const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
+
+    return new SimplePaginator(items, perPage, currentPage, { pageName });
+  }
+
+  /**
+   * Get the current query value bindings in a flattened array.
+   * @returns array
+   */
+  getBindings() {
+    return this.processor.getBindings();
   }
 
   /**
