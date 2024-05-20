@@ -35,7 +35,7 @@ export default class Processor {
       } else {
         if (['IN', 'NOT IN'].includes(conditions[1])) {
           this.params = this.params.concat(conditions[2]);
-          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').join(',')})`;
+          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length).map(_ => '?').join(',')})`;
         } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
           const [from, to] = conditions[2];
           this.params.push(from);
