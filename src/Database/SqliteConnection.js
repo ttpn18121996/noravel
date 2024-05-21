@@ -26,10 +26,13 @@ export default class SqliteConnection extends Connection {
 
     return new Promise((resolve, reject) => {
       conn.all(sql, data, (err, rows) => {
-        resolve(rows);
+        if (err) {
+          console.err('Execute query failed.')
+          reject(err);
+        } else {
+          resolve(rows);
+        }
       });
-
-      conn.close();
     });
   }
 

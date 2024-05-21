@@ -637,8 +637,7 @@ export default class Builder {
    */
   async paginate(perPage, currentPage, columns = ['*'], pageName = 'page') {
     const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
-
-    const total = _arr(await this.get([`COUNT ${this.from}.* as total`])).first()?.total || 0;
+    const total = (await this.first(['COUNT(*) as total']))?.total || 0;
 
     return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName });
   }

@@ -96,7 +96,7 @@ export default class Processor {
         sql += ')';
       } else {
         if (conditions[1] === 'IN' || conditions[1] === 'NOT IN') {
-          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length - 1).map(_ => '?').get().join(',')})`;
+          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length).map(_ => '?').get().join(',')})`;
         } else {
           sql += `${conditions[0]} ${conditions[1]} ${conditions[2] === null ? '' : '?'}`;
         }
