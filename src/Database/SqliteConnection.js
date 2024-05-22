@@ -27,7 +27,7 @@ export default class SqliteConnection extends Connection {
     return new Promise((resolve, reject) => {
       conn.all(sql, data, (err, rows) => {
         if (err) {
-          console.err('Execute query failed.')
+          console.log('Execute query failed.')
           reject(err);
         } else {
           resolve(rows);
