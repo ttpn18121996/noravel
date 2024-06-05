@@ -10,7 +10,7 @@ export class Container {
 
   private constructor() {}
 
-  public static get getInstance() {
+  public static getInstance() {
     if (!Container._instance) {
       Container._instance = new Container();
     }

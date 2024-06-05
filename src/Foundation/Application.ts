@@ -1,18 +1,22 @@
 import express from 'express';
-import { Express, Router } from 'express-serve-static-core';
+import { Express } from 'express-serve-static-core';
 import Config, { DataConfig } from './Config';
 import Container from './Container';
-import type ServiceProvider from './Providers/ServiceProvider';
+import ServiceProvider from './Providers/ServiceProvider';
 import AppServiceProvider from './Providers/AppServiceProvider';
 import SessionServiceProvider from '../Session/SessionServiceProvider';
-import RouteServiceProvider from './Providers/RouteServiceProvider';
+import RouteServiceProvider, { type RegisteredRoute } from './Providers/RouteServiceProvider';
+import Router from '../Routing/Router';
+import Middleware from './Configuration/Middleware';
+import { _obj } from 'tiny-supporter';
 
 class Application {
   private basePath: string = '/';
   private server: Express = express();
-  private config: Config = Config.getInstance;
-  private container: Container = Container.getInstance;
+  private config: Config = Config.getInstance();
+  private container: Container = Container.getInstance();
   private registeredProviders: ServiceProvider[] = [];
+  private middleware: Middleware = new Middleware();
 
   public configure(data: DataConfig = { basePath: '/', configs: {} }): this {
     this.basePath = data.basePath;
@@ -35,14 +39,81 @@ class Application {
 
     this.registeredProviders.push(new AppServiceProvider(serviceProviderProps));
     this.registeredProviders.push(new SessionServiceProvider(serviceProviderProps));
+    this.registeredProviders.push(new RouteServiceProvider(serviceProviderProps));
   }
 
-  public withRouting(routes: { [key: string]: Router }) {
+  public withRouting(routes: { [key: string]: Router }): this {
     const routeEntries = Object.entries(routes);
-    const routeServiceProvider = new RouteServiceProvider({ server: this.server, baseDir: this.basePath, container: this.container });
+    const registeredRoutes: RegisteredRoute[] = [];
+
+    for (const [prefix, route] of routeEntries) {
+      registeredRoutes.push({
+        prefix,
+        route,
+      });
+    }
+
+    const routeServiceProvider = this.registeredProviders.find(
+      serviceProvider => serviceProvider.constructor.name === 'RouteServiceProvider',
+    ) as RouteServiceProvider;
+    routeServiceProvider.loadRoutes(registeredRoutes);
+
+    return this;
   }
 
-  public getBasePath() {}
+  public withMiddleware(callback: (middleware: Middleware) => void) {
+    callback(this.middleware);
+
+    return this;
+  }
+
+  public getBasePath(path: string = ''): string {
+    return this.basePath + path.replace(/^\//, '');
+  }
+
+  public makeServiceProvider() {
+    const appConfig = this.config.getConfig('app');
+    const providers = _obj.get(appConfig, 'providers', []);
+
+    for (const serviceProvider of providers) {
+      this.registeredProviders.push(
+        new serviceProvider({ server: this.server, baseDir: this.basePath, container: this.container }),
+      );
+    }
+  }
+
+  public registerServiceProvider(): void {
+    for (const registeredProvider of this.registeredProviders) {
+      if (typeof registeredProvider.register !== 'function') {
+        throw new Error(registeredProvider.constructor.name + ' has not defined the register method.');
+      }
+
+      registeredProvider.register();
+    }
+  }
+
+  public bootServiceProvider(): void {
+    for (const registeredProvider of this.registeredProviders) {
+      if (typeof registeredProvider.boot !== 'function') {
+        throw new Error(registeredProvider.constructor.name + ' has not defined the boot method.');
+      }
+
+      registeredProvider.boot();
+    }
+  }
+
+  public create() {
+    this.makeServiceProvider();
+    this.registerServiceProvider();
+
+    return this;
+  }
+
+  public run() {
+    this.bootServiceProvider();
+
+    return this.server;
+  }
 }
 
 export default new Application();

@@ -3,7 +3,7 @@ import ExpressHandlebars from 'express-handlebars';
 import ServiceProvider from './ServiceProvider';
 
 export default class AppServiceProvider extends ServiceProvider {
-  override register() {
+  override register(): void {
     this.registerViews();
     this.registerStaticFile();
   }

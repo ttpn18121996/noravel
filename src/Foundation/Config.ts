@@ -17,7 +17,7 @@ export default class Config {
     this.configs = {};
   }
 
-  public static get getInstance() {
+  public static getInstance() {
     if (!Config._instance) {
       Config._instance = new Config();
     }

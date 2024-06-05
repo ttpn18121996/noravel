@@ -18,11 +18,11 @@ export default class ServiceProvider {
     return this.baseDir + path.replace(/^\//, '');
   }
 
-  public register() {
+  public register(): void {
     //
   }
 
-  public boot() {
+  public boot(): void {
     //
   }
 }
