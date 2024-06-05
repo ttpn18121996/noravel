@@ -131,7 +131,9 @@ export default class Builder {
       return this;
     }
 
-    this.joins.push(joinClause.on(first, operator, second, 'AND'));
+    joinClause.on(first, operator, second, 'AND');
+
+    this.joins.push(joinClause);
 
     return this;
   }
@@ -628,7 +630,7 @@ export default class Builder {
   }
 
   /**
-   * 
+   * Paginate the given query into a simple paginator.
    * @param {number} perPage
    * @param {number} currentPage
    * @param {array} columns
@@ -643,7 +645,7 @@ export default class Builder {
   }
 
   /**
-   * 
+   * Get a paginator only supporting simple next and previous links.
    * @param {number} perPage
    * @param {number} currentPage
    * @param {array} columns
