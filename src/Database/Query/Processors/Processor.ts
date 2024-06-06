@@ -1,7 +1,7 @@
 import { _arr } from 'tiny-supporter';
 import { IJoinClause, OrderByType } from '../../../Contracts/Database/Builder';
 
-export default class Processor {
+export default abstract class Processor {
   public params: any[] = [];
 
   public compileWhere(wheres: any[]): string {
@@ -115,6 +115,8 @@ export default class Processor {
   public compileOrderBy(orders: OrderByType): string {
     return ' ORDER BY ' + orders.map(([column, direction]) => `${column} ${direction}`).join(', ');
   }
+
+  public abstract compileLimit(limit?: number | null, offset?: number | null): string;
 
   public compileInsert(table: string, data: any[]): string {
     let sql = `INSERT INTO ${table} `;

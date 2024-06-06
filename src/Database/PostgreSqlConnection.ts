@@ -26,16 +26,12 @@ export default class PostgreSqlConnection extends Connection {
 
   /**
    * Insert a new record and get the value of the primary key.
-   * @param {string} sql
-   * @param {array} data
-   * @param {function} callback
-   * @returns Promise
    */
   public async insertGetId(sql: string, data: any[], callback: (err: Error | null, id?: number | null) => any) {
     const conn = await this.getConnection();
 
     return new Promise((resolve, reject) => {
-      conn.query(sql, data, function (err, result) {
+      conn.query(sql, data, (err: Error, result: QueryResult) => {
         resolve(callback(err, _obj.get(result, 'rows.0.id', null)));
       });
     });

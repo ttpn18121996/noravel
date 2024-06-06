@@ -1,4 +1,4 @@
-import { _arr, typeOf } from 'tiny-supporter';
+import { _arr, empty, typeOf } from 'tiny-supporter';
 import type Connection from '../Connection';
 import ConnectionFactory from '../ConnectionFactory';
 import type Processor from './Processors/Processor';
@@ -54,7 +54,7 @@ export default class Builder {
   public _limit: number | null = null;
   public _offset: number | null = null;
   public _groups: string[] = [];
-  public _havings = [];
+  public _havings: any[] = [];
   public _orders: OrderByType = [];
 
   public constructor(connectionFactory: ConnectionFactory, processor: Processor) {
@@ -169,11 +169,6 @@ export default class Builder {
 
   /**
    * Add a basic where clause to the query.
-   * @param {string|array|function} column
-   * @param {string|null} operator
-   * @param {any} value
-   * @param {string} boolean
-   * @returns this
    */
   public where(column: any, operator: string | null = null, value: any = null, boolean: string = 'AND'): this {
     if (Array.isArray(column)) {
@@ -352,5 +347,151 @@ export default class Builder {
    */
   public orWhereNotNull(columns: string | string[]): this {
     return this.whereNotNull(columns, 'OR');
+  }
+
+  /**
+   * Add a "group by" clause to the query.
+   */
+  public groupBy(...args: any[]): this {
+    if (Array.isArray(args[0])) {
+      this._groups = args[0];
+    } else {
+      this._groups = args;
+    }
+
+    return this;
+  }
+
+  /**
+   * Add a "having" clause to the query.
+   */
+  public having(
+    column: any,
+    operator: string | number | null = null,
+    value: any = null,
+    boolean: string = 'AND',
+  ): this {
+    if (Array.isArray(column)) {
+      return this.addArrayOfWheres(column, boolean, 'having');
+    }
+
+    if (typeOf(column) === 'function') {
+      const builder = (column as (query: Builder) => Builder)(new Builder(this._connectionFactory, this._processor));
+      this._wheres.push(builder._wheres);
+
+      return this;
+    }
+
+    [value, operator] = this.prepareValueAndOperator(value, (operator as string) ?? '=', arguments.length === 2);
+
+    if (this.invalidOperator(operator)) {
+      operator = '=';
+    }
+
+    this._havings.push([column, operator, value, boolean]);
+
+    return this;
+  }
+
+  /**
+   * Add an "or having" clause to the query.
+   */
+  public orHaving(column: any, operator: string | number | null = null, value: any = null): this {
+    return this.having(column, operator, value, 'OR');
+  }
+
+  /**
+   * Add an "order by" clause to the query.
+   */
+  public orderBy(column: string, direction: string = 'ASC'): this {
+    this._orders.push([column, direction.toUpperCase()]);
+
+    return this;
+  }
+
+  /**
+   * Add a descending "order by" clause to the query.
+   */
+  public orderByDesc(column: string): this {
+    return this.orderBy(column, 'DESC');
+  }
+
+  /**
+   * Set the "offset" value of the query.
+   */
+  public offset(offset: number): this {
+    this._offset = offset;
+
+    return this;
+  }
+
+  /**
+   * Set the "limit" value of the query.
+   */
+  public limit(limit: number): this {
+    this._limit = limit;
+
+    return this;
+  }
+
+  /**
+   * Set the "limit" and the "offset" value of the query.
+   */
+  public take(limit: number, start: number = 0): this {
+    return this.limit(limit).offset(start);
+  }
+
+  public compileSelect(columns?: string[]): string | null {
+    if (columns && columns.length) {
+      this._columns = columns;
+    }
+
+    if (this._from === null || this._from === undefined) {
+      return null;
+    }
+
+    let sql = this._distinct ? 'SELECT distinct ' : 'SELECT ';
+    sql += `${this._columns.join(', ')} FROM ${this._from}${this._tableAlias ? ' as ' + this._tableAlias : ''}`;
+
+    if (!empty(this._joins)) {
+      sql += this._processor.compileJoin(this._joins);
+    }
+
+    if (!empty(this._wheres)) {
+      sql += this._processor.compileWhere(this._wheres);
+    }
+
+    if (!empty(this._groups)) {
+      sql += this._processor.compileGroup(this._groups);
+    }
+
+    // Having
+
+    if (!empty(this._orders)) {
+      sql += this._processor.compileOrderBy(this._orders);
+    }
+
+    sql += this._processor.compileLimit(this._limit, this._offset);
+
+    return sql;
+  }
+
+  /**
+   * Insert a new record and get the value of the primary key.
+   */
+  public async create(data: { [key: string]: any }) {
+    if (typeOf(data) !== 'object') {
+      return null;
+    }
+
+    const sql = this._processor.compileInsert(this._from, [data]);
+    const bindings = this._processor.getBindings();
+    const _conn = this._connection;
+
+    if (!_conn) {
+      throw new Error('Connect to database failed');
+    }
+
+    return await _conn.insertGetId(sql, bindings, (err: Error | null, id: any) => id);
   }
 }
