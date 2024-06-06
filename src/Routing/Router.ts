@@ -76,8 +76,7 @@ export default class Router {
       for (const route of routes) {
         const middlewares = route.resolveMiddlewares();
         middlewares.push((req: Request, res: Response, next: NextFunction) => route.execute(req, res, next));
-        const callable = router[method as keyof ExpressRouter] as Function;
-        callable(route.uri, ...middlewares);
+        (router[method as keyof ExpressRouter] as Function)(route.uri, ...middlewares);
       }
     }
 

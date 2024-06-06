@@ -1,4 +1,4 @@
-import mysql, { Connection as BaseConnection } from 'mysql2/promise';
+import mysql, { Connection as BaseConnection, QueryResult } from 'mysql2/promise';
 import Config from '../Foundation/Config';
 import Connection from './Connection';
 import { _obj } from 'tiny-supporter';
@@ -16,7 +16,7 @@ export default class MySqlConnection extends Connection {
     return this.connection;
   }
 
-  public async execute(sql: string, data: any[] = []) {
+  public async execute(sql: string, data: any[] = []): Promise<QueryResult> {
     const conn = await this.getConnection();
 
     const [rows] = await conn.execute(sql, data);

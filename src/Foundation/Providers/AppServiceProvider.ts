@@ -1,5 +1,5 @@
 import express from 'express';
-import ExpressHandlebars from 'express-handlebars';
+import { engine as expressHandlebarsEngine } from 'express-handlebars';
 import ServiceProvider from './ServiceProvider';
 
 export default class AppServiceProvider extends ServiceProvider {
@@ -11,7 +11,7 @@ export default class AppServiceProvider extends ServiceProvider {
   private registerViews() {
     this.app.engine(
       '.html',
-      ExpressHandlebars.engine({
+      expressHandlebarsEngine({
         extname: '.html',
         defaultLayout: this.container.getConfig('view.default_layout', 'app'),
         layoutsDir: this.container.getConfig('view.layout_dir', 'resources/views/layouts'),
