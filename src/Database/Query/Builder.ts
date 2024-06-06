@@ -2,6 +2,7 @@ import { _arr } from "tiny-supporter";
 import type Connection from "../Connection";
 import ConnectionFactory from "../ConnectionFactory";
 import type Processor from "./Processors/Processor";
+import { OrderByType } from "../../Contracts/Database/Builder";
 
 const _operators = [
   '=',
@@ -39,21 +40,21 @@ const _operators = [
 ];
 
 export default class Builder {
-  private _connectionFactory: ConnectionFactory;
-  private _processor: Processor;
-  private _connection: Connection | null;
-  private _connectionName: string;
-  private _columns: string[] = ['*'];
-  private _from: string = '';
-  private _tableAlias: string | null = null;
-  private _distinct: boolean = false;
-  private _wheres = [];
-  private _joins = [];
-  private _limit: number | null = null;
-  private _offset: number | null = null;
-  private _groups = null;
-  private _havings = [];
-  private _orders = [];
+  public _connectionFactory: ConnectionFactory;
+  public _processor: Processor;
+  public _connection: Connection | null;
+  public _connectionName: string;
+  public _columns: string[] = ['*'];
+  public _from: string = '';
+  public _tableAlias: string | null = null;
+  public _distinct: boolean = false;
+  public _wheres = [];
+  public _joins = [];
+  public _limit: number | null = null;
+  public _offset: number | null = null;
+  public _groups: string[] = [];
+  public _havings = [];
+  public _orders: OrderByType = [];
 
   constructor(connectionFactory: ConnectionFactory, processor: Processor) {
     this._connectionFactory = connectionFactory;
