@@ -175,12 +175,7 @@ export default class Builder {
    * @param {string} boolean
    * @returns this
    */
-  public where(
-    column: (query: Builder) => Builder | string | string[][],
-    operator: string | null = null,
-    value: any = null,
-    boolean: string = 'AND',
-  ): this {
+  public where(column: any, operator: string | null = null, value: any = null, boolean: string = 'AND'): this {
     if (Array.isArray(column)) {
       return this.addArrayOfWheres(column, boolean);
     }
@@ -250,11 +245,7 @@ export default class Builder {
   /**
    * Add an "or where" clause to the query.
    */
-  public orWhere(
-    column: (query: Builder) => Builder | string | string[][],
-    operator: string | null = null,
-    value: any = null,
-  ): this {
+  public orWhere(column: any, operator: string | null = null, value: any = null): this {
     [value, operator] = this.prepareValueAndOperator(value, operator ?? '=', arguments.length === 2);
 
     return this.where(column, operator, value, 'OR');
@@ -262,60 +253,36 @@ export default class Builder {
 
   /**
    * Add a "where in" clause to the query.
-   * @param {string} column
-   * @param {array} list
-   * @param {string} boolean
-   * @param {boolean} not
-   * @returns this
    */
-  public whereIn(
-    column: (query: Builder) => Builder | string | string[][],
-    list: number[] | string[] = [],
-    boolean = 'AND',
-    not = 'IN',
-  ) {
+  public whereIn(column: any, list: number[] | string[] = [], boolean: string = 'AND', not: string = 'IN'): this {
     return this.where(column, not, list, boolean);
   }
 
   /**
    * Add an "or where in" clause to the query.
-   * @param {string} column
-   * @param {array} list
-   * @returns this
    */
-  orWhereIn(column, list = []) {
+  public orWhereIn(column: any, list: number[] | string[] = []): this {
     return this.whereIn(column, list, 'OR');
   }
 
   /**
    * Add a "where not in" clause to the query.
-   * @param {string} column
-   * @param {array} list
-   * @param {string} boolean
-   * @returns this
    */
-  whereNotIn(column, list = [], boolean = 'AND') {
+  public whereNotIn(column: any, list: number[] | string[] = [], boolean: string = 'AND'): this {
     return this.whereIn(column, list, boolean, 'NOT IN');
   }
 
   /**
    * Add a "or where not in" clause to the query.
-   * @param {string} column
-   * @param {array} list
-   * @returns this
    */
-  orWhereNotIn(column, list = []) {
+  public orWhereNotIn(column: any, list: number[] | string[] = []): this {
     return this.whereNotIn(column, list, 'OR');
   }
 
   /**
    * Add a "where null" clause to the query.
-   * @param {string|array} columns
-   * @param {string} boolean
-   * @param {boolean} not
-   * @returns this
    */
-  whereNull(columns, boolean = 'AND', not = false) {
+  public whereNull(columns: string | string[], boolean: string = 'AND', not: boolean = false): this {
     const operator = not ? 'NOT NULL' : 'NULL';
 
     if (!Array.isArray(columns)) {
@@ -323,7 +290,7 @@ export default class Builder {
     }
 
     for (const column of columns) {
-      this.wheres.push([column, `IS ${operator}`, null, boolean]);
+      this._wheres.push([column, `IS ${operator}`, null, boolean]);
     }
 
     return this;
@@ -331,76 +298,59 @@ export default class Builder {
 
   /**
    * Add an "or where null" clause to the query.
-   * @param {string|array} columns
-   * @returns this
    */
-  orWhereNull(columns) {
+  public orWhereNull(columns: string | string[]): this {
     return this.whereNull(columns, 'OR');
   }
 
   /**
    * Add a "where not null" clause to the query.
-   * @param {string|array} columns
-   * @param {string} boolean
-   * @returns this
    */
-  whereNotNull(columns, boolean = 'AND') {
+  public whereNotNull(columns: string | string[], boolean: string = 'AND'): this {
     return this.whereNull(columns, boolean, true);
   }
 
   /**
    * Add a where between statement to the query.
-   * @param {string} column
-   * @param {array} values
-   * @param {string} boolean
-   * @param {boolean} not
-   * @returns this
    */
-  whereBetween(column, values = [], boolean = 'AND', not = false) {
+  public whereBetween(
+    column: string,
+    values: number[] | string[] = [],
+    boolean: string = 'AND',
+    not: boolean = false,
+  ): this {
     const operator = not ? 'NOT BETWEEN' : 'BETWEEN';
 
-    this.wheres.push([column, operator, values, boolean]);
+    this._wheres.push([column, operator, values, boolean]);
 
     return this;
   }
 
   /**
    * Add an or where between statement to the query.
-   * @param {string} column
-   * @param {array} values
-   * @returns this
    */
-  orWhereBetween(column, values = []) {
+  public orWhereBetween(column: string, values: number[] | string[] = []): this {
     return this.whereBetween(column, values, 'OR');
   }
 
   /**
    * Add an or where between statement to the query.
-   * @param {string} column
-   * @param {array} values
-   * @param {string} boolean
-   * @returns this
    */
-  whereNotBetween(column, values = [], boolean = 'AND') {
+  public whereNotBetween(column: string, values: number[] | string[] = [], boolean: string = 'AND'): this {
     return this.whereBetween(column, values, boolean, true);
   }
 
   /**
    * Add an or where not between statement to the query.
-   * @param {string} column
-   * @param {array} values
-   * @returns this
    */
-  orWhereNotBetween(column, values = []) {
-    return this.whereNotBetween(column, values, 'OR', true);
+  public orWhereNotBetween(column: string, values: number[] | string[] = []): this {
+    return this.whereNotBetween(column, values, 'OR');
   }
 
   /**
    * Add an "or where not null" clause to the query.
-   * @param {string|array} columns
-   * @returns this
    */
-  orWhereNotNull(columns) {
+  public orWhereNotNull(columns: string | string[]): this {
     return this.whereNotNull(columns, 'OR');
   }
 }
