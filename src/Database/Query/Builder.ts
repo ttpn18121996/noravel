@@ -4,6 +4,7 @@ import ConnectionFactory from '../ConnectionFactory';
 import type Processor from './Processors/Processor';
 import { IJoinClause, OrderByType } from '../../Contracts/Database/Builder';
 import JoinClause from './JoinClause';
+import LengthAwarePaginator from '../../Pagination/LengthAwarePaginator';
 
 const _operators = [
   '=',
@@ -170,7 +171,7 @@ export default class Builder {
   /**
    * Add a basic where clause to the query.
    */
-  public where(column: any, operator: string | null = null, value: any = null, boolean: string = 'AND'): this {
+  public where(column: any, operator: string | number | null = null, value: any = null, boolean: string = 'AND'): this {
     if (Array.isArray(column)) {
       return this.addArrayOfWheres(column, boolean);
     }
@@ -182,7 +183,7 @@ export default class Builder {
       return this;
     }
 
-    [value, operator] = this.prepareValueAndOperator(value, operator ?? '=', arguments.length === 2);
+    [value, operator] = this.prepareValueAndOperator(value, (operator as string) ?? '=', arguments.length === 2);
 
     if (value === null) {
       return this.whereNull(column, boolean);
@@ -441,13 +442,17 @@ export default class Builder {
     return this.limit(limit).offset(start);
   }
 
-  public compileSelect(columns?: string[]): string | null {
+  public compileSelect(columns?: string | string[]): string {
     if (columns && columns.length) {
-      this._columns = columns;
+      if (Array.isArray(columns) && columns.length) {
+        this._columns = columns;
+      } else {
+        this._columns = [`${columns}`];
+      }
     }
 
     if (this._from === null || this._from === undefined) {
-      return null;
+      return '';
     }
 
     let sql = this._distinct ? 'SELECT distinct ' : 'SELECT ';
@@ -477,6 +482,30 @@ export default class Builder {
   }
 
   /**
+   * Insert new records into the database.
+   */
+  public async insert(data: { [key: string]: any } | { [key: string]: any }[]): Promise<any> {
+    if (empty(data)) {
+      return true;
+    }
+
+    let dataInsert: { [key: string]: any }[] = [];
+
+    if (typeOf(data) === 'object') {
+      dataInsert.push(data);
+    } else if (typeOf(data) === 'array') {
+      dataInsert = dataInsert.concat(data);
+    } else {
+      return true;
+    }
+
+    const sql = this._processor.compileInsert(this._from, dataInsert);
+    const bindings = this._processor.getBindings();
+
+    return await this.execute(sql, bindings as never[]);
+  }
+
+  /**
    * Insert a new record and get the value of the primary key.
    */
   public async create(data: { [key: string]: any }) {
@@ -493,5 +522,113 @@ export default class Builder {
     }
 
     return await _conn.insertGetId(sql, bindings, (err: Error | null, id: any) => id);
+  }
+
+  /**
+   * Get the SQL representation of the query.
+   */
+  public toSql(): string {
+    return this.compileSelect();
+  }
+
+  /**
+   * Get the raw SQL representation of the query with embedded bindings.
+   */
+  public toRawSql(): string {
+    let sql = this.toSql() ?? '';
+    const bindings = [...this.getBindings()];
+
+    do {
+      const temp = bindings.shift();
+      if (temp === null || temp === undefined) {
+        sql = sql.replace(/ \!= \?/, ' IS NOT NULL').replace(/ = \?/, ' IS NULL');
+      } else if (typeOf(temp) === 'number') {
+        sql = sql.replace(/\?/, temp);
+      } else {
+        sql = sql.replace(/\?/, `'${temp}'`);
+      }
+    } while (bindings.length);
+
+    return sql;
+  }
+
+  /**
+   * Execute the query and get the first result.
+   */
+  public async first(columns?: string | string[]) {
+    const result = await this.take(1).get(columns);
+
+    return _arr(result).first();
+  }
+
+  /**
+   * Execute a query for a single record by ID.
+   */
+  public async find(id: number | string | number, columns?: string | string[]) {
+    return await this.where('id', id).first(columns);
+  }
+
+  /**
+   * Execute the query as a "select" statement.
+   */
+  public async get(columns?: string | string[]): Promise<any> {
+    return await this.execute(this.compileSelect(columns), this.getBindings() as never[]);
+  }
+
+  /**
+   * Paginate the given query into a simple paginator.
+   * @param {number} perPage
+   * @param {number} currentPage
+   * @param {array} columns
+   * @param {string} pageName by default "page"
+   * @returns LengthAwarePaginator
+   */
+  public async paginate(perPage: number, currentPage: number, columns: string[] = ['*'], pageName: string = 'page') {
+    const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
+    const total = (await this.first(['COUNT(*) as total']))?.total || 0;
+
+    return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName });
+  }
+
+  /**
+   * Get a paginator only supporting simple next and previous links.
+   * @param {number} perPage
+   * @param {number} currentPage
+   * @param {array} columns
+   * @param {string} pageName by default "page"
+   * @returns SimplePaginator
+   */
+  // async simplePaginate(perPage, currentPage, columns = ['*'], pageName = 'page') {
+  //   const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
+
+  //   return new SimplePaginator(items, perPage, currentPage, { pageName });
+  // }
+
+  /**
+   * Get the current query value bindings in a flattened array.
+   */
+  public getBindings(): any[] {
+    return this._processor.getBindings();
+  }
+
+  /**
+   * Dump the current SQL and bindings.
+   */
+  public dd() {
+    return {
+      sql: this.toSql(),
+      bindings: this.getBindings(),
+    };
+  }
+
+  /**
+   * Execute the query manually.
+   */
+  public async execute(sql: string, data: any[] = []) {
+    if (this._connection === null) {
+      return null;
+    }
+
+    return await this._connection.execute(sql, data);
   }
 }

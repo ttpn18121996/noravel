@@ -4,8 +4,10 @@ import { IJoinClause, OrderByType } from '../../../Contracts/Database/Builder';
 export default abstract class Processor {
   public params: any[] = [];
 
+  public abstract compileLimit(limit?: number | null, offset?: number | null): string;
+
   public compileWhere(wheres: any[]): string {
-    let sql = '';
+    let sql = ' WHERE ';
 
     for (let key = 0; key < wheres.length; key++) {
       const conditions = wheres[key];
@@ -100,7 +102,10 @@ export default abstract class Processor {
         sql += ')';
       } else {
         if (conditions[1] === 'IN' || conditions[1] === 'NOT IN') {
-          sql += `${conditions[0]} ${conditions[1]} (${_arr().range(0, conditions[2].length).map(_ => '?').join(',')})`;
+          sql += `${conditions[0]} ${conditions[1]} (${_arr()
+            .range(0, conditions[2].length)
+            .map(_ => '?')
+            .join(',')})`;
         } else {
           sql += `${conditions[0]} ${conditions[1]} ${conditions[2] === null ? '' : '?'}`;
         }
@@ -115,8 +120,6 @@ export default abstract class Processor {
   public compileOrderBy(orders: OrderByType): string {
     return ' ORDER BY ' + orders.map(([column, direction]) => `${column} ${direction}`).join(', ');
   }
-
-  public abstract compileLimit(limit?: number | null, offset?: number | null): string;
 
   public compileInsert(table: string, data: any[]): string {
     let sql = `INSERT INTO ${table} `;
