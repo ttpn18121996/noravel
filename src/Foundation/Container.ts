@@ -5,12 +5,12 @@ import path from 'path';
 export class Container {
   private baseDir: string = '/';
   private config: Config | null = null;
-  private bound: { [key: string]: any } = {};
+  private bound: Record<string, unknown> = {};
   private static _instance: Container;
 
   private constructor() {}
 
-  public static getInstance() {
+  public static getInstance(): Container {
     if (!Container._instance) {
       Container._instance = new Container();
     }
@@ -38,12 +38,12 @@ export class Container {
     this.bound[abstract] = concrete;
   }
 
-  public resolve(abstract: string, params: { [key: string]: any } = {}): any {
+  public resolve(abstract: string, params: Record<string, any> = {}): any {
     if (this.bound?.[abstract]) {
       const concrete = this.bound[abstract];
 
       if (!this.isConstructor(concrete)) {
-        return concrete(this);
+        return (concrete as Function)(this);
       }
 
       const dependencies = this.getArgumentNames(concrete);
@@ -55,7 +55,7 @@ export class Container {
           instances.push(this.resolve(dependency, params));
         }
 
-        return Reflect.construct(concrete, instances);
+        return Reflect.construct(concrete as new (...args: any[]) => any, instances);
       }
     }
 
@@ -70,7 +70,11 @@ export class Container {
     const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
 
     if (this.isConstructor(constructor)) {
-      return _str(constructor.toString()).replace(STRIP_COMMENTS, '').betweenFirst('constructor(', ')').get().split(',');
+      return _str(constructor.toString())
+        .replace(STRIP_COMMENTS, '')
+        .betweenFirst('constructor(', ')')
+        .get()
+        .split(',');
     }
 
     const ARGUMENT_NAMES = /([^\s,]+)/g;

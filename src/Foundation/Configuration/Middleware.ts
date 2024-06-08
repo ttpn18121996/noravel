@@ -5,9 +5,9 @@ export interface IMiddleware {
 }
 
 export default class Middleware {
-  private middlewares: { [key: string]: IMiddleware } = {};
+  private middlewares: Record<string, IMiddleware> = {};
 
-  public alias(middlewares: { [key: string]: IMiddleware }) {
+  public alias(middlewares: Record<string, IMiddleware>) {
     this.middlewares = { ...this.middlewares, ...middlewares };
   }
 }

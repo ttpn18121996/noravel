@@ -1,5 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express-serve-static-core';
 import { _obj, typeOf } from 'tiny-supporter';
+import { validMethod } from './Router';
 
 export type RouteAction = [new () => Object, string] | RequestHandler;
 
@@ -10,13 +11,21 @@ export default class Route {
 
   private action: string | null = null;
 
-  public constructor(public uri: string, action: RouteAction) {
+  private middlewares: any[] = [];
+
+  public constructor(public method: validMethod, public uri: string, action: RouteAction) {
     if (Array.isArray(action)) {
       this.controller = action[0];
       this.action = action[1];
     } else {
       this.controller = action;
     }
+  }
+
+  public middleware(middlewares: any[]) {
+    this.middlewares = this.middlewares.concat(middlewares);
+
+    return this;
   }
 
   public name(name: string) {
@@ -28,7 +37,17 @@ export default class Route {
   }
 
   public resolveMiddlewares(): any[] {
-    return [];
+    return this.middlewares.map(middleware => {
+      if (typeOf(middleware) === 'constructor') {
+        middleware = new middleware();
+      }
+
+      if (typeof middleware.handle === 'function') {
+        return middleware.handle;
+      }
+
+      return middleware;
+    });
   }
 
   public execute(req: Request, res: Response, next: NextFunction): Response {

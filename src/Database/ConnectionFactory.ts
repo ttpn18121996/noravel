@@ -6,9 +6,9 @@ import SqliteConnection from './SqliteConnection';
 import Connection from './Connection';
 
 type DriverConnection = {
-  mysql: typeof Connection;
-  postgres: typeof Connection;
-  sqlite: typeof Connection;
+  mysql: new () => Connection;
+  postgres: new () => Connection;
+  sqlite: new () => Connection;
 };
 
 export default class ConnectionFactory {
@@ -23,11 +23,11 @@ export default class ConnectionFactory {
   }
 
   public getDriver(key: string): Connection | null {
-    const drivers = {
+    const drivers: DriverConnection = {
       mysql: MySqlConnection,
       postgres: PostgreSqlConnection,
       sqlite: SqliteConnection,
-    } as DriverConnection;
+    };
 
     const driver = drivers?.[key as keyof DriverConnection];
 

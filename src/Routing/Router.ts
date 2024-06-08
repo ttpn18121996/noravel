@@ -5,7 +5,7 @@ import { _obj } from 'tiny-supporter';
 
 const verbs = ['get', 'post', 'put', 'patch', 'delete', 'options'];
 
-type validMethod = (typeof verbs)[number];
+export type validMethod = (typeof verbs)[number];
 
 type RouterOption = {
   middleware: [];
@@ -26,7 +26,7 @@ export default class Router {
 
   public add(method: validMethod, uri: string, action: RouteAction): Route {
     const uriWithPrefix = _obj.get(this.routeOptions, 'prefix', '') + uri;
-    const newRoute = new Route(uriWithPrefix, action);
+    const newRoute = new Route(method, uriWithPrefix, action);
 
     if (this.routeRegistered?.[method.toLowerCase()]) {
       this.routeRegistered[method.toLowerCase()].push(newRoute);

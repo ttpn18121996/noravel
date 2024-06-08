@@ -484,15 +484,15 @@ export default class Builder {
   /**
    * Insert new records into the database.
    */
-  public async insert(data: { [key: string]: any } | { [key: string]: any }[]): Promise<any> {
+  public async insert(data: Record<string, unknown> | Record<string, unknown>[]): Promise<any> {
     if (empty(data)) {
       return true;
     }
 
-    let dataInsert: { [key: string]: any }[] = [];
+    let dataInsert: Record<string, unknown>[] = [];
 
     if (typeOf(data) === 'object') {
-      dataInsert.push(data);
+      dataInsert.push(data as Record<string, unknown>);
     } else if (typeOf(data) === 'array') {
       dataInsert = dataInsert.concat(data);
     } else {
@@ -508,7 +508,7 @@ export default class Builder {
   /**
    * Insert a new record and get the value of the primary key.
    */
-  public async create(data: { [key: string]: any }) {
+  public async create(data: Record<string, unknown>) {
     if (typeOf(data) !== 'object') {
       return null;
     }
@@ -587,7 +587,7 @@ export default class Builder {
     const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
     const total = (await this.first(['COUNT(*) as total']))?.total || 0;
 
-    return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName });
+    return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName: pageName });
   }
 
   /**

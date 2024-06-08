@@ -42,7 +42,7 @@ class Application {
     this.registeredProviders.push(new RouteServiceProvider(serviceProviderProps));
   }
 
-  public withRouting(routes: { [key: string]: Router }): this {
+  public withRouting(routes: Record<string, Router>): this {
     const routeEntries = Object.entries(routes);
     const registeredRoutes: RegisteredRoute[] = [];
 
