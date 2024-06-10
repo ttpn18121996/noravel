@@ -2,7 +2,7 @@ import { _arr } from 'tiny-supporter';
 import Paginator, { PaginatorOptions, initOptions } from './Paginator';
 import UrlWindow from './UrlWindow';
 
-type UrlRange = {
+export type UrlRange = {
   page: number;
   url: string;
 };
@@ -15,7 +15,7 @@ export default class LengthAwarePaginator extends Paginator {
     items: any[],
     public total: number = 0,
     public perPage: number,
-    public currentPage: number = 1,
+    currentPage: number = 1,
     options: PaginatorOptions = initOptions,
   ) {
     super(items, perPage, currentPage, options);
@@ -24,7 +24,11 @@ export default class LengthAwarePaginator extends Paginator {
   }
 
   public setItems(items: any[]): void {
-    this.items = items;
+    if (items.length > this.perPage) {
+      this.items = items.slice(this.currentPage * this.perPage - this.perPage, this.currentPage * this.perPage);
+    } else {
+      this.items = items;
+    }
   }
 
   public setOnEachSide(value: number) {
@@ -58,7 +62,23 @@ export default class LengthAwarePaginator extends Paginator {
         return {
           page,
           url: this.url(page),
+          active: page == this.currentPage,
         };
       });
+  }
+
+  public jsonSerialize(): Record<string, unknown> {
+    return {
+      current_page: this.currentPage,
+      data: this.items,
+      first_page_url: this.url(1),
+      from: this.firstItem(),
+      next_page_url: this.nextPageUrl(),
+      path: this.path,
+      per_page: this.perPage,
+      prev_page_url: this.previousPageUrl(),
+      to: this.lastItem(),
+      elements: this.elements(),
+    };
   }
 }

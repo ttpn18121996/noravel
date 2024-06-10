@@ -4,9 +4,12 @@ export default class SimplePaginator extends Paginator {
   protected hasMore: boolean = false;
 
   public setItems(items: any[]) {
-    this.items = items;
     this.hasMore = items.length > this.perPage;
-    this.items = this.items.slice(0, this.perPage);
+    if (items.length > this.perPage) {
+      this.items = items.slice(this.currentPage * this.perPage - this.perPage, this.currentPage * this.perPage);
+    } else {
+      this.items = items;
+    }
   }
 
   public links(view?: string, data?: Record<string, unknown>) {
@@ -17,7 +20,7 @@ export default class SimplePaginator extends Paginator {
     return this.hasMore;
   }
 
-  public jsonSerialize() {
+  public jsonSerialize(): Record<string, unknown> {
     return {
       current_page: this.currentPage,
       data: this.items,
@@ -29,9 +32,5 @@ export default class SimplePaginator extends Paginator {
       prev_page_url: this.previousPageUrl(),
       to: this.lastItem(),
     };
-  }
-
-  public toJson() {
-    return JSON.stringify(this.jsonSerialize());
   }
 }

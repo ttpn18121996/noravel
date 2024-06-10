@@ -1,20 +1,15 @@
 import { _arr } from 'tiny-supporter';
-import LengthAwarePaginator from './LengthAwarePaginator';
+import LengthAwarePaginator, { UrlRange } from './LengthAwarePaginator';
 
 export default class UrlWindow {
-  public first: number[] | null = null;
-  public slider: number[] | null = null;
-  public last: number[] | null = null;
-  private static instance: UrlWindow;
+  public first: UrlRange[] | null = null;
+  public slider: UrlRange[] | null = null;
+  public last: UrlRange[] | null = null;
 
   private constructor(public paginator: LengthAwarePaginator) {}
 
   public static make(paginator: LengthAwarePaginator) {
-    if (!UrlWindow.instance) {
-      UrlWindow.instance = new UrlWindow(paginator);
-    }
-
-    return UrlWindow.instance.get();
+    return new UrlWindow(paginator).get();
   }
 
   public get() {
@@ -38,7 +33,7 @@ export default class UrlWindow {
   public getUrlSlider(onEachSide: number) {
     const window = onEachSide + 4;
     const total = this.paginator.total;
-    const currentPage = this.paginator.currentPage;
+    const currentPage: number = this.paginator.currentPage;
 
     if (total <= 1) {
       return this;
@@ -46,24 +41,18 @@ export default class UrlWindow {
 
     this.first = _arr().range(1, total).get();
 
-    const first = [1, 2];
-    const last = [total - 1, total];
+    const first = this.paginator.getUrlRange(1, 2);
+    const last = this.paginator.getUrlRange(total - 1, total);
 
     if (currentPage <= window) {
-      this.first = _arr()
-        .range(1, window + onEachSide)
-        .get();
+      this.first = this.paginator.getUrlRange(1, window + onEachSide);
       this.last = last;
     } else if (currentPage > total - window) {
       this.first = first;
-      this.last = _arr()
-        .range(total - window - onEachSide + 1, total)
-        .get();
+      this.last = this.paginator.getUrlRange(total - window - onEachSide + 1, total);
     } else {
       this.first = first;
-      this.slider = _arr()
-        .range(currentPage - onEachSide, currentPage + onEachSide)
-        .get();
+      this.slider = this.paginator.getUrlRange(currentPage - onEachSide, currentPage + onEachSide);
       this.last = last;
     }
 
