@@ -68,12 +68,14 @@ export default class RouteServiceProvider extends ServiceProvider {
   }
 
   private customResponse() {
+    const viewShared = this.view.get();
     this.app.response.view = function (
       view: string,
       options?: Object | undefined,
       callback?: ((err: Error, html: string) => void) | undefined,
     ) {
-      return this.render(view, options, callback);
+      const newOptions = { ...viewShared, ...options};
+      return this.render(view, newOptions, callback);
     };
 
     this.app.response.abort = function (status = 400, message = 'Bad request') {

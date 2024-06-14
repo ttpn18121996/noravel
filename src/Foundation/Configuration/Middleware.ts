@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express-serve-static-core';
 
+
+export type IFunctionalMiddleware = (req: Request, res: Response, next: NextFunction) => Response;
 export interface IMiddleware {
-  handle: (req: Request, res: Response, next: NextFunction) => Response;
+  new (): IMiddleware;
+  handle: IFunctionalMiddleware;
 }
 
 export default class Middleware {

@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express-serve-static-core';
-import { _obj, typeOf } from 'tiny-supporter';
+import { typeOf } from 'tiny-supporter';
 import { validMethod } from './Router';
+import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
 
 export type RouteAction = [new () => Object, string] | RequestHandler;
 
@@ -11,7 +12,7 @@ export default class Route {
 
   private action: string | null = null;
 
-  private middlewares: any[] = [];
+  private middlewares: (IMiddleware | IFunctionalMiddleware)[] = [];
 
   public constructor(public method: validMethod, public uri: string, action: RouteAction) {
     if (Array.isArray(action)) {
@@ -22,7 +23,7 @@ export default class Route {
     }
   }
 
-  public middleware(middlewares: any[]) {
+  public middleware(middlewares: (IMiddleware | IFunctionalMiddleware)[]) {
     this.middlewares = this.middlewares.concat(middlewares);
 
     return this;
@@ -36,17 +37,17 @@ export default class Route {
     return this.routeName;
   }
 
-  public resolveMiddlewares(): any[] {
+  public resolveMiddlewares(): IFunctionalMiddleware[] {
     return this.middlewares.map(middleware => {
       if (typeOf(middleware) === 'constructor') {
-        middleware = new middleware();
+        middleware = new (middleware as IMiddleware)();
       }
 
-      if (typeof middleware.handle === 'function') {
-        return middleware.handle;
+      if (typeof (middleware as IMiddleware).handle === 'function') {
+        return (middleware as IMiddleware).handle;
       }
 
-      return middleware;
+      return middleware as IFunctionalMiddleware;
     });
   }
 

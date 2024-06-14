@@ -2,15 +2,12 @@ import { IRouter, NextFunction, Request, Response } from 'express-serve-static-c
 import { Router as ExpressRouter } from 'express';
 import Route, { RouteAction } from './Route';
 import { _obj } from 'tiny-supporter';
+import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
+import RouteGroup, { RouterOption } from './RouteGroup';
 
 const verbs = ['get', 'post', 'put', 'patch', 'delete', 'options'];
 
 export type validMethod = (typeof verbs)[number];
-
-type RouterOption = {
-  middleware: [];
-  prefix: string;
-};
 
 export default class Router {
   private routeRegistered: Record<validMethod, Route[]> = {
@@ -22,17 +19,42 @@ export default class Router {
     options: [],
   };
 
-  private routeOptions: RouterOption = { middleware: [], prefix: '' };
+  private groupStack: RouterOption[] = [];
 
   public add(method: validMethod, uri: string, action: RouteAction): Route {
-    const uriWithPrefix = _obj.get(this.routeOptions, 'prefix', '') + uri;
-    const newRoute = new Route(method, uriWithPrefix, action);
+    const newRoute = new Route(method, this.getPrefix(uri), action);
+    newRoute.middleware(this.getMiddlewares());
 
     if (this.routeRegistered?.[method.toLowerCase()]) {
       this.routeRegistered[method.toLowerCase()].push(newRoute);
     }
 
     return newRoute;
+  }
+
+  private getPrefix(uri: string): string {
+    let prefix = '';
+    uri = uri.replace(/\/{1}$/, '');
+
+    if (uri === '') {
+      uri = '/';
+    }
+
+    if (this.groupStack.length) {
+      prefix += _obj.get(this.groupStack[this.groupStack.length - 1], 'prefix', '');
+    }
+
+    return prefix + uri;
+  }
+
+  private getMiddlewares(): (IMiddleware | IFunctionalMiddleware)[] {
+    let middlewares: (IMiddleware | IFunctionalMiddleware)[] = [];
+
+    if (this.groupStack.length) {
+      middlewares = middlewares.concat(_obj.get(this.groupStack[this.groupStack.length - 1], 'middleware', []));
+    }
+
+    return middlewares;
   }
 
   public get(uri: string, action: RouteAction): Route {
@@ -60,12 +82,21 @@ export default class Router {
   }
 
   public group(options: RouterOption, callback: Function) {
-    this.routeOptions = { ...this.routeOptions, ...options };
-    callback();
-    this.routeOptions = {
-      middleware: [],
-      prefix: '',
-    };
+    this.updateGroupStack(options);
+
+    callback(this);
+    
+    this.groupStack.pop();
+  }
+
+  private updateGroupStack(options: RouterOption) {
+    const groupGroup = new RouteGroup();
+
+    if (this.groupStack.length) {
+      this.groupStack.push(groupGroup.merge(options, this.groupStack[this.groupStack.length - 1]));
+    } else {
+      this.groupStack.push(groupGroup.setOptions(options));
+    }
   }
 
   public run(): IRouter {
