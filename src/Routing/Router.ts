@@ -85,7 +85,7 @@ export default class Router {
     this.updateGroupStack(options);
 
     callback(this);
-    
+
     this.groupStack.pop();
   }
 
