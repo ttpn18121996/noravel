@@ -14,7 +14,11 @@ export default class Route {
 
   private middlewares: (IMiddleware | IFunctionalMiddleware)[] = [];
 
-  public constructor(public method: validMethod, public uri: string, action: RouteAction) {
+  public constructor(
+    public method: validMethod,
+    public uri: string,
+    action: RouteAction,
+  ) {
     if (Array.isArray(action)) {
       this.controller = action[0];
       this.action = action[1];
@@ -56,6 +60,6 @@ export default class Route {
       return this.controller(req, res, next);
     }
 
-    return new (this.controller)()[this.action || 'index'](req, res, next);
+    return new this.controller()[this.action || 'index'](req, res, next);
   }
 }

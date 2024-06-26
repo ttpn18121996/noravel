@@ -19,11 +19,11 @@ export default class View {
     this.data[key] = value;
   }
 
-  public composer(key: string, composer: ViewComposer) {
-    this.data[key] = composer.compose();
+  public async composer(key: string, composer: ViewComposer) {
+    this.data[key] = await composer.compose();
   }
 
-  public get(key?: string, defaultValue?: any): any {
+  public get(key?: string, defaultValue?: any) {
     if (!key) {
       return this.data;
     }

@@ -1,5 +1,5 @@
-import { _obj } from "tiny-supporter";
-import Config from "../Foundation/Config";
+import { _obj } from 'tiny-supporter';
+import Config from '../Foundation/Config';
 
 export type PaginatorOptions = {
   path?: string;
@@ -28,7 +28,7 @@ export default abstract class Paginator {
     this.currentPage = parseInt(`${currentPage}`);
   }
 
-  abstract setItems(items: any[]): void
+  abstract setItems(items: any[]): void;
 
   abstract hasMorePages(): boolean;
 

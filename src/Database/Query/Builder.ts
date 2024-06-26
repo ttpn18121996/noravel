@@ -123,7 +123,7 @@ export default class Builder {
    */
   public join(
     table: string,
-    first: (join: IJoinClause) => void | string,
+    first: (join: IJoinClause) => any | string,
     operator: string = '=',
     second: string | null = null,
     type: string = 'INNER',
@@ -131,7 +131,7 @@ export default class Builder {
     const joinClause = new JoinClause(new Builder(this._connectionFactory, this._processor), table, type);
 
     if (typeOf(first) === 'function') {
-      (first as (join: IJoinClause) => void)(joinClause);
+      (first as (join: IJoinClause) => any)(joinClause);
       this._joins.push(joinClause);
 
       return this;

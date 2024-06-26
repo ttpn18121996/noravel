@@ -74,7 +74,7 @@ export default class RouteServiceProvider extends ServiceProvider {
       options?: Object | undefined,
       callback?: ((err: Error, html: string) => void) | undefined,
     ) {
-      const newOptions = { ...viewShared, ...options};
+      const newOptions = { ...viewShared, ...options };
       return this.render(view, newOptions, callback);
     };
 

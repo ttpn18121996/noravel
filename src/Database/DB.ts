@@ -1,10 +1,9 @@
-import Config from "../Foundation/Config";
-import ConnectionFactory from "./ConnectionFactory";
-import Builder from "./Query/Builder";
-import MySqlProcessor from "./Query/Processors/MySqlProcessor";
-import PostgreSqlProcessor from "./Query/Processors/PostgreSqlProcessor";
-import Processor from "./Query/Processors/Processor";
-import SqliteProcessor from "./Query/Processors/SqliteProcessor";
+import Config from '../Foundation/Config';
+import ConnectionFactory from './ConnectionFactory';
+import Builder from './Query/Builder';
+import MySqlProcessor from './Query/Processors/MySqlProcessor';
+import PostgreSqlProcessor from './Query/Processors/PostgreSqlProcessor';
+import SqliteProcessor from './Query/Processors/SqliteProcessor';
 
 class DB {
   private static _config: any;

@@ -14,9 +14,9 @@ export default abstract class Processor {
 
       if (key) {
         if (Array.isArray(conditions[0])) {
-          sql += ` ${conditions[0][3]}`;
+          sql += ` ${conditions[0][3]} `;
         } else {
-          sql += ` ${conditions[3]}`;
+          sql += ` ${conditions[3]} `;
         }
       }
 
@@ -27,7 +27,7 @@ export default abstract class Processor {
           if (!subKey) {
             sql += '(';
           } else {
-            sql += ` ${subConditions[3]}`;
+            sql += ` ${subConditions[3]} `;
           }
 
           sql += `${subConditions[0]} ${subConditions[1] === null ? 'IS NULL' : subConditions[1]} ?`;

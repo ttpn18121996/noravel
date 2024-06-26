@@ -11,7 +11,7 @@ export default class JoinClause implements IJoinClause {
     public type: string = 'INNER',
   ) {}
 
-  public on(first: string, operator: string, second: string, boolean: string): Builder {
+  public on(first: string, operator: string, second: string, boolean: string = 'AND'): Builder {
     this.joins = { first, operator, second, boolean };
 
     return this.builder;
@@ -20,10 +20,10 @@ export default class JoinClause implements IJoinClause {
   public getString(): string {
     let on = ` ${this.type} JOIN ${this.table} ON ${this.joins.first} ${this.joins.operator} ${this.joins.second}`;
 
-    if(!empty(this.builder._wheres)) {
+    if (!empty(this.builder._wheres)) {
       on += ` ${this.joins.boolean} ${this.builder._processor.compileWhere(this.builder._wheres).replace(/ WHERE /i, '')}`;
     }
 
     return on;
-  };
+  }
 }
