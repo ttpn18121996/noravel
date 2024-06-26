@@ -14,7 +14,7 @@ class DB {
       name = Config.getInstance().getConfig('database.default');
     }
 
-    DB._config = Config.getInstance().getConfig('database.connections' + name);
+    DB._config = Config.getInstance().getConfig('database.connections.' + name);
 
     switch (DB._config.driver) {
       case 'mysql':
