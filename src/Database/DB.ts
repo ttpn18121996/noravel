@@ -29,6 +29,10 @@ class DB {
     }
   }
 
+  public static connection(connection: string): Builder {
+    return DB.builder().connection(connection);
+  }
+
   public static builder(): Builder {
     const processor = DB.getProcessor();
 
@@ -39,7 +43,7 @@ class DB {
     return new Builder(new ConnectionFactory(), processor);
   }
 
-  public static table(tableName: string, alias?: string) {
+  public static table(tableName: string, alias?: string): Builder {
     return DB.builder().table(tableName, alias);
   }
 }

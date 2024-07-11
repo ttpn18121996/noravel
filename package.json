@@ -24,6 +24,13 @@
   "homepage": "https://github.com/ttpn18121996/noravel",
   "bugs": "https://github.com/ttpn18121996/noravel/issues",
   "type": "commonjs",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js"
+    },
+    "./database": "./dist/Database/index.js",
+    "./model": "./dist/Model/index.js"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "express": "^4.18.2",
