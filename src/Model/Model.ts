@@ -39,11 +39,17 @@ export default class Model {
   }
 
   public query(connection?: string): Builder {
+    const builder = DB.table(this.getTable()).setModel(this.getClass());
+
     if (connection) {
-      return DB.connection(connection).table(this.getTable());
+      return builder.connection(connection);
     }
 
-    return DB.table(this.getTable());
+    return builder;
+  }
+
+  public getClass(): string {
+    return this.constructor.name;
   }
 
   public jsonSerialize(): Object {

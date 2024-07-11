@@ -5,6 +5,7 @@ import type Processor from './Processors/Processor';
 import { IJoinClause, OrderByType } from '../../Contracts/Database/Builder';
 import JoinClause from './JoinClause';
 import LengthAwarePaginator from '../../Pagination/LengthAwarePaginator';
+import { Model } from '../../Model';
 
 const _operators = [
   '=',
@@ -57,6 +58,7 @@ export default class Builder {
   public _groups: string[] = [];
   public _havings: any[] = [];
   public _orders: OrderByType = [];
+  public _model: string | null = null;
 
   public constructor(connectionFactory: ConnectionFactory, processor: Processor) {
     this._connectionFactory = connectionFactory;
@@ -630,5 +632,11 @@ export default class Builder {
     }
 
     return await this._connection.execute(sql, data);
+  }
+
+  public setModel(model: string) {
+    this._model = model;
+
+    return this;
   }
 }
