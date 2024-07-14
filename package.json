@@ -29,6 +29,11 @@
       "default": "./dist/index.js"
     },
     "./database": "./dist/Database/index.js",
+    "./http": {
+      "types": "./dist/Http/index.d.ts",
+      "require": "./dist/Http/index.js",
+      "import": "./dist/Http/index.js"
+    },
     "./model": "./dist/Model/index.js"
   },
   "dependencies": {

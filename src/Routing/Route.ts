@@ -1,7 +1,8 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express-serve-static-core';
+import { NextFunction, RequestHandler } from 'express-serve-static-core';
 import { typeOf } from 'tiny-supporter';
 import { validMethod } from './Router';
 import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
+import { Request, Response } from '../Http';
 
 export type RouteAction = [new () => Object, string] | RequestHandler;
 
@@ -44,7 +45,7 @@ export default class Route {
   public resolveMiddlewares(): IFunctionalMiddleware[] {
     return this.middlewares.map(middleware => {
       if (typeOf(middleware) === 'constructor') {
-        middleware = new (middleware as IMiddleware)();
+        middleware = new (middleware as any)();
       }
 
       if (typeof (middleware as IMiddleware).handle === 'function') {
