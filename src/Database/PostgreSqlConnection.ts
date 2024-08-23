@@ -2,38 +2,59 @@ import pg, { PoolClient, QueryResult } from 'pg';
 import Config from '../Foundation/Config';
 import Connection from './Connection';
 import { _obj } from 'tiny-supporter';
+import { QueryTypes, Sequelize } from 'sequelize';
 
 export default class PostgreSqlConnection extends Connection {
   protected config = Config.getInstance().getConfig('database.connections.postgres');
-  protected connection: PoolClient | null = null;
+  protected connection: Sequelize | null = null;
 
-  public async getConnection(): Promise<PoolClient> {
+  public getConnection(): Sequelize {
     if (!this.connection) {
-      const { host, port, user, password, database } = this.config;
-      const postgres = new pg.Pool({ host, port, user, password, database });
-      this.connection = await postgres.connect();
+      const { driver, host, port, database, username, password } = this.config;
+      this.connection = new Sequelize(database, username, password, {
+        dialect: driver,
+        host,
+        port,
+      });
     }
 
     return this.connection;
   }
 
-  public async execute(sql: string, data: any[] = []): Promise<QueryResult> {
-    const conn = await this.getConnection();
-    const rows = await conn.query(sql, data);
+  public async execute(
+    sql: string,
+    data: any[] = [],
+    callback?: (results: unknown, metadata: unknown) => any,
+  ): Promise<unknown[]> {
+    const conn = this.getConnection();
+    const [results, metadata] = await conn.query(sql, { type: QueryTypes.RAW, replacements: data });
 
-    return rows;
+    return callback ? callback(results, metadata) : [results, metadata];
   }
 
   /**
    * Insert a new record and get the value of the primary key.
    */
-  public async insertGetId(sql: string, data: any[], callback: (err: Error | null, id?: number | null) => any) {
+  public async insertGetId(sql: string, data: any[], callback?: (results: unknown, metadata: unknown) => any) {
     const conn = await this.getConnection();
 
-    return new Promise((resolve, reject) => {
-      conn.query(sql, data, (err: Error, result: QueryResult) => {
-        resolve(callback(err, _obj.get(result, 'rows.0.id', null)));
-      });
+    const [results, metadata] = await conn.query(sql, {
+      replacements: data,
+      raw: true,
+      type: QueryTypes.INSERT,
     });
+
+    return callback ? callback(results, metadata) : [results, metadata];
+  }
+
+  public async select(sql: string, data: any[], callback?: (rows: Record<string, unknown>[]) => any) {
+    const conn = this.getConnection();
+    const rows = (await conn.query(sql, {
+      replacements: data,
+      type: QueryTypes.SELECT,
+      raw: true,
+    })) as Record<string, unknown>[];
+
+    return callback ? callback(rows) : rows;
   }
 }

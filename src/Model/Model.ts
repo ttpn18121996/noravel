@@ -1,6 +1,6 @@
-import { _obj } from "tiny-supporter";
-import { DB } from "../Database";
-import Builder from "../Database/Query/Builder";
+import { _obj } from 'tiny-supporter';
+import { DB } from '../Database';
+import Builder from '../Database/Query/Builder';
 
 export default class Model {
   protected table: string = '';
@@ -9,17 +9,14 @@ export default class Model {
   protected fillable: string[] = [];
   protected hidden: string[] = [];
 
-  constructor(
-    attributes: Record<string, unknown> = {}
-  ) {
-    this.attributes = { ...this.attributes, ...attributes };
+  constructor(attributes: Record<string, unknown> = {}) {
+    this.setAttributes(attributes);
   }
 
   public fill(attributes: Record<string, unknown>) {
-    const _attr = _obj.only(attributes, this.fillable);
-    this.attributes = { ...this.attributes, ..._attr };
+    const _attr = _obj.only(attributes, this.fillable) as Record<string, unknown>;
 
-    return this;
+    return this.setAttributes(_attr);
   }
 
   public getTable(): string {
@@ -38,6 +35,12 @@ export default class Model {
     return _obj.get(this.attributes, key, defaultValue);
   }
 
+  public setAttributes(attributes: Record<string, unknown> = {}): this {
+    this.attributes = { ...this.attributes, ...attributes };
+
+    return this;
+  }
+
   public query(connection?: string): Builder {
     const builder = DB.table(this.getTable()).setModel(this.getClass());
 
@@ -48,8 +51,8 @@ export default class Model {
     return builder;
   }
 
-  public getClass(): string {
-    return this.constructor.name;
+  public getClass(): this {
+    return this;
   }
 
   public jsonSerialize(): Object {

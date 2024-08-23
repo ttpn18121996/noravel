@@ -6,6 +6,7 @@ import { IJoinClause, OrderByType } from '../../Contracts/Database/Builder';
 import JoinClause from './JoinClause';
 import LengthAwarePaginator from '../../Pagination/LengthAwarePaginator';
 import { Model } from '../../Model';
+import SimplePaginator from '../../Pagination/SimplePaginator';
 
 const _operators = [
   '=',
@@ -58,7 +59,7 @@ export default class Builder {
   public _groups: string[] = [];
   public _havings: any[] = [];
   public _orders: OrderByType = [];
-  public _model: string | null = null;
+  public _model: Model | null = null;
 
   public constructor(connectionFactory: ConnectionFactory, processor: Processor) {
     this._connectionFactory = connectionFactory;
@@ -83,7 +84,7 @@ export default class Builder {
   public table(tableName: string, alias: string | null = null): this {
     const [table, tableAlias] = tableName.split(' as ');
 
-    this._tableAlias = alias ? alias : tableAlias ?? null;
+    this._tableAlias = alias ? alias : (tableAlias ?? null);
     this._from = table;
 
     return this;
@@ -523,7 +524,7 @@ export default class Builder {
       throw new Error('Connect to database failed');
     }
 
-    return await _conn.insertGetId(sql, bindings, (err: Error | null, id: any) => id);
+    return await _conn.insertGetId(sql, bindings, (_, id: any) => id);
   }
 
   /**
@@ -574,7 +575,11 @@ export default class Builder {
    * Execute the query as a "select" statement.
    */
   public async get(columns?: string | string[]): Promise<any> {
-    return await this.execute(this.compileSelect(columns), this.getBindings() as never[]);
+    const results = await this.execute(this.compileSelect(columns), this.getBindings() as never[], results =>
+      results.map(item => (this._model ? this._model.setAttributes(item) : item)),
+    );
+
+    return results;
   }
 
   /**
@@ -586,7 +591,11 @@ export default class Builder {
    * @returns LengthAwarePaginator
    */
   public async paginate(perPage: number, currentPage: number, columns: string[] = ['*'], pageName: string = 'page') {
-    const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
+    const items = (await this.take(perPage, (currentPage - 1) * perPage).get(columns)).map(
+      (item: Record<string, unknown>) => {
+        return this._model ? this._model.setAttributes(item) : item;
+      },
+    );
     const total = (await this.first(['COUNT(*) as total']))?.total || 0;
 
     return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName: pageName });
@@ -600,11 +609,11 @@ export default class Builder {
    * @param {string} pageName by default "page"
    * @returns SimplePaginator
    */
-  // async simplePaginate(perPage, currentPage, columns = ['*'], pageName = 'page') {
-  //   const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
+  async simplePaginate(perPage: number, currentPage: number, columns: string[] = ['*'], pageName: string = 'page') {
+    const items = await this.take(perPage, (currentPage - 1) * perPage).get(columns);
 
-  //   return new SimplePaginator(items, perPage, currentPage, { pageName });
-  // }
+    return new SimplePaginator(items, perPage, currentPage, { pageName });
+  }
 
   /**
    * Get the current query value bindings in a flattened array.
@@ -626,15 +635,15 @@ export default class Builder {
   /**
    * Execute the query manually.
    */
-  public async execute(sql: string, data: any[] = []) {
+  public async execute(sql: string, data: any[] = [], callback?: (results: Record<string, unknown>[]) => any) {
     if (this._connection === null) {
       return null;
     }
 
-    return await this._connection.execute(sql, data);
+    return await this._connection.select(sql, data, callback);
   }
 
-  public setModel(model: string) {
+  public setModel(model: Model) {
     this._model = model;
 
     return this;
