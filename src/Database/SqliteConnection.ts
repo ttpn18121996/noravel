@@ -1,37 +1,33 @@
 import sqlite3, { type Database as IDatabase } from 'sqlite3';
+import { QueryTypes, Sequelize } from 'sequelize';
 import Config from '../Foundation/Config';
 import Connection from './Connection';
 
 export default class SqliteConnection extends Connection {
   protected config = Config.getInstance().getConfig('database.connections.sqlite');
-  protected connection: IDatabase | null = null;
+  protected connection: Sequelize | null = null;
 
-  public getConnection() {
+  public getConnection(): Sequelize {
     if (!this.connection) {
-      const { database } = this.config;
-      this.connection = new sqlite3.Database(database, err => {
-        if (err) {
-          console.log(`Error connecting: ${err}`);
-        }
+      const { driver, database } = this.config;
+      this.connection = new Sequelize({
+        dialect: driver,
+        storage: database,
       });
     }
 
     return this.connection;
   }
 
-  public execute(sql: string, data: any[] = []): Promise<unknown[]> {
+  public async execute(
+    sql: string,
+    data: any[] = [],
+    callback?: (results: unknown, metadata: unknown) => any,
+  ): Promise<unknown[]> {
     const conn = this.getConnection();
+    const [results, metadata] = await conn.query(sql, { type: QueryTypes.RAW, replacements: data });
 
-    return new Promise((resolve, reject) => {
-      conn.all(sql, data, (err, rows) => {
-        if (err) {
-          console.log('Execute query failed.');
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+    return callback ? callback(results, metadata) : [results, metadata];
   }
 
   /**
@@ -41,19 +37,30 @@ export default class SqliteConnection extends Connection {
    * @param {function} callback
    * @returns Promise
    */
-  async insertGetId(sql: string, data: any[], callback: (err: Error | null, id?: number | null) => any) {
+  async insertGetId(sql: string, data: any[], callback?: (results: unknown, metadata: unknown) => any) {
     const conn = await this.getConnection();
 
-    return new Promise((resolve, reject) => {
-      conn.run(sql, data, function (err) {
-        resolve(callback(err, this.lastID));
-      });
-
-      conn.close();
+    const [results, metadata] = await conn.query(sql, {
+      replacements: data,
+      raw: true,
+      type: QueryTypes.INSERT,
     });
+
+    return callback ? callback(results, metadata) : [results, metadata];
   }
 
   toSql() {
     return '';
+  }
+
+  public async select(sql: string, data: any[], callback?: (rows: Record<string, unknown>[]) => any) {
+    const conn = this.getConnection();
+    const rows = (await conn.query(sql, {
+      replacements: data,
+      type: QueryTypes.SELECT,
+      raw: true,
+    })) as Record<string, unknown>[];
+
+    return callback ? callback(rows) : rows;
   }
 }
