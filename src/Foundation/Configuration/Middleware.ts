@@ -1,5 +1,5 @@
 import { NextFunction } from 'express-serve-static-core';
-import { Request, Response } from "../../Http";
+import { Request, Response } from '../../Http';
 
 export type IFunctionalMiddleware = (req: Request, res: Response, next: NextFunction) => void;
 export interface IMiddleware {

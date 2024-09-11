@@ -1,4 +1,3 @@
-import { Request as ExpressRequest } from "express-serve-static-core";
+import { Request as ExpressRequest } from 'express-serve-static-core';
 
-export interface Request extends ExpressRequest {
-} 
+export interface Request extends ExpressRequest {}
