@@ -103,7 +103,7 @@ export default abstract class Processor {
       } else {
         if (conditions[1] === 'IN' || conditions[1] === 'NOT IN') {
           sql += `${conditions[0]} ${conditions[1]} (${_arr()
-            .range(0, conditions[2].length)
+            .range(0, conditions[2].length - 1)
             .map(_ => '?')
             .join(',')})`;
         } else {
