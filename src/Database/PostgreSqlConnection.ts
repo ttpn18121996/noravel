@@ -23,7 +23,7 @@ export default class PostgreSqlConnection extends Connection {
 
   public async execute(
     sql: string,
-    data: any[] = [],
+    data: unknown[] = [],
     callback?: (results: unknown, metadata: unknown) => any,
   ): Promise<unknown[]> {
     const conn = this.getConnection();
@@ -53,7 +53,7 @@ export default class PostgreSqlConnection extends Connection {
     return callback ? callback(results, metadata) : [results, metadata];
   }
 
-  public async select(sql: string, data: any[], callback?: (rows: Record<string, unknown>[]) => any) {
+  public async select(sql: string, data: unknown[] = [], callback?: (rows: Record<string, unknown>[]) => any) {
     const conn = this.getConnection();
     const options = this.getQueryOption(data);
     options.type = QueryTypes.SELECT;

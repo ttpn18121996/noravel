@@ -44,7 +44,7 @@ export default class MySqlConnection extends Connection {
     return callback ? callback(results, metadata) : [results, metadata];
   }
 
-  public async select(sql: string, data: any[], callback?: (rows: Record<string, unknown>[]) => any) {
+  public async select(sql: string, data: unknown[] = [], callback?: (rows: Record<string, unknown>[]) => any) {
     const conn = this.getConnection();
     const options = this.getQueryOption(data);
     options.type = QueryTypes.SELECT;

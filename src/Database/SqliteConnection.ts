@@ -53,7 +53,7 @@ export default class SqliteConnection extends Connection {
     return '';
   }
 
-  public async select(sql: string, data: unknown[], callback?: (rows: Record<string, unknown>[]) => any) {
+  public async select(sql: string, data: unknown[] = [], callback?: (rows: Record<string, unknown>[]) => any) {
     const conn = this.getConnection();
     const options = this.getQueryOption(data);
     options.type = QueryTypes.SELECT;
