@@ -39,7 +39,7 @@ export default abstract class Processor {
         if (['IN', 'NOT IN'].includes(conditions[1])) {
           this.params = this.params.concat(conditions[2]);
           sql += `${conditions[0]} ${conditions[1]} (${_arr()
-            .range(0, conditions[2].length)
+            .range(0, conditions[2].length - 1)
             .map(_ => '?')
             .join(',')})`;
         } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
