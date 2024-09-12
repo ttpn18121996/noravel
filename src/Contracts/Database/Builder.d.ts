@@ -8,10 +8,10 @@ export type JoinType = {
 };
 
 export interface IJoinClause {
-  public table: string;
-  public joins: JoinType;
-  public on: (first: string, operator: string, second: string, boolean: string) => Builder;
-  public getString: () => string;
+  table: string;
+  joins: JoinType;
+  on: (first: string, operator: string, second: string, boolean: string) => Builder;
+  getString: () => string;
 }
 
 export type OrderByType = [string, string][];

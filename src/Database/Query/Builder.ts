@@ -635,7 +635,7 @@ export default class Builder {
   /**
    * Execute the query manually.
    */
-  public async execute(sql: string, data: any[] = [], callback?: (results: Record<string, unknown>[]) => any) {
+  public async execute(sql: string, data: unknown[] = [], callback?: (results: Record<string, unknown>[]) => any) {
     if (this._connection === null) {
       return null;
     }

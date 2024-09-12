@@ -23,11 +23,17 @@ export default class PostgreSqlConnection extends Connection {
 
   public async execute(
     sql: string,
-    data: any[] = [],
+    data: unknown[] = [],
     callback?: (results: unknown, metadata: unknown) => any,
   ): Promise<unknown[]> {
     const conn = this.getConnection();
-    const [results, metadata] = await conn.query(sql, { type: QueryTypes.RAW, replacements: data });
+    const options = { type: QueryTypes.RAW } as { type: QueryTypes; replacements?: any[] };
+
+    if (data.length) {
+      options.replacements = data;
+    }
+
+    const [results, metadata] = await conn.query(sql, options);
 
     return callback ? callback(results, metadata) : [results, metadata];
   }
@@ -47,13 +53,12 @@ export default class PostgreSqlConnection extends Connection {
     return callback ? callback(results, metadata) : [results, metadata];
   }
 
-  public async select(sql: string, data: any[], callback?: (rows: Record<string, unknown>[]) => any) {
+  public async select(sql: string, data: unknown[] = [], callback?: (rows: Record<string, unknown>[]) => any) {
     const conn = this.getConnection();
-    const rows = (await conn.query(sql, {
-      replacements: data,
-      type: QueryTypes.SELECT,
-      raw: true,
-    })) as Record<string, unknown>[];
+    const options = this.getQueryOption(data);
+    options.type = QueryTypes.SELECT;
+    options.raw = true;
+    const rows = (await conn.query(sql, options)) as Record<string, unknown>[];
 
     return callback ? callback(rows) : rows;
   }
