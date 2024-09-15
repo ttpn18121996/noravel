@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj, _str } from 'tiny-supporter';
 import Config from '../Foundation/Config';
 
 export type PaginatorOptions = {
@@ -48,7 +48,7 @@ export default abstract class Paginator {
     return this.items.length > 0 ? this.perPage * this.currentPage : 0;
   }
 
-  public nextPageUrl(): URL | null {
+  public nextPageUrl(): string | null {
     if (this.hasMorePages()) {
       return this.url(this.currentPage + 1);
     }
@@ -56,7 +56,7 @@ export default abstract class Paginator {
     return null;
   }
 
-  public previousPageUrl(): URL | null {
+  public previousPageUrl(): string | null {
     if (this.currentPage > 1) {
       return this.url(this.currentPage - 1);
     }
@@ -64,8 +64,8 @@ export default abstract class Paginator {
     return null;
   }
 
-  public url(page: number): URL {
-    let base = Config.getInstance().getConfig('app.url', undefined);
+  public url(page: number): string {
+    let base = Config.getInstance().getConfig('app.url', '');
 
     if (this.options.baseUrl) {
       base = this.options.baseUrl;
@@ -75,10 +75,7 @@ export default abstract class Paginator {
       page = 1;
     }
 
-    const url = new URL(this.path, base);
-    url.searchParams.set(this.pageName, `${page}`);
-
-    return url;
+    return _str(this.path).prepend(base).append(_obj.toQueryString({ [this.pageName]: page })).toString();
   }
 
   public setOption(key: string, value: unknown) {
