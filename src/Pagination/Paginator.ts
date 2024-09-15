@@ -65,7 +65,7 @@ export default abstract class Paginator {
   }
 
   public url(page: number): URL {
-    let base = Config.getInstance().getConfig('app.url', '');
+    let base = Config.getInstance().getConfig('app.url', undefined);
 
     if (this.options.baseUrl) {
       base = this.options.baseUrl;
