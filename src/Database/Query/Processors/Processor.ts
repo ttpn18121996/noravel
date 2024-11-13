@@ -1,4 +1,4 @@
-import { _arr } from 'tiny-supporter';
+import { _arr } from '@noravel/supporter';
 import { IJoinClause, OrderByType } from '../../../Contracts/Database/Builder';
 
 export default abstract class Processor {

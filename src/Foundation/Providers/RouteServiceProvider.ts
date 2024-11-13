@@ -2,7 +2,7 @@ import express from 'express';
 import ServiceProvider from './ServiceProvider';
 import Router from '../../Routing/Router';
 import Middleware from '../Configuration/Middleware';
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 
 export type RegisteredRoute = { prefix: string; route: Router };
 

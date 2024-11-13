@@ -1,7 +1,6 @@
-import pg, { PoolClient, QueryResult } from 'pg';
 import Config from '../Foundation/Config';
 import Connection from './Connection';
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 export default class PostgreSqlConnection extends Connection {

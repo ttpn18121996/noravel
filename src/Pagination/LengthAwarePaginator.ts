@@ -1,4 +1,4 @@
-import { _arr } from 'tiny-supporter';
+import { _arr } from '@noravel/supporter';
 import Paginator, { PaginatorOptions, initOptions } from './Paginator';
 import UrlWindow from './UrlWindow';
 

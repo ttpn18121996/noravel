@@ -1,4 +1,4 @@
-import { _str } from 'tiny-supporter';
+import { _str } from '@noravel/supporter';
 import Config from './Config';
 import path from 'path';
 

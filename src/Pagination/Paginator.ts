@@ -1,4 +1,4 @@
-import { _obj, _str } from 'tiny-supporter';
+import { _obj, _str } from '@noravel/supporter';
 import Config from '../Foundation/Config';
 
 export type PaginatorOptions = {
@@ -75,7 +75,10 @@ export default abstract class Paginator {
       page = 1;
     }
 
-    return _str(this.path).prepend(base).append(_obj.toQueryString({ [this.pageName]: page })).toString();
+    return _str(this.path)
+      .prepend(base)
+      .append(_obj.toQueryString({ [this.pageName]: page }))
+      .toString();
   }
 
   public setOption(key: string, value: unknown) {

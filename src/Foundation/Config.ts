@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 
 export type ConfigLoader = Record<string, unknown>;
 

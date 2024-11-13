@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import { DB } from '../Database';
 import Builder from '../Database/Query/Builder';
 

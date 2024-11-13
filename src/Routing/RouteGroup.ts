@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
 
 export type RouterOption = {
