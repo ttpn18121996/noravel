@@ -1,6 +1,6 @@
 import session, { SessionOptions } from 'express-session';
 import ServiceProvider from '../Foundation/Providers/ServiceProvider';
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 
 export default class SessionServiceProvider extends ServiceProvider {
   override register() {

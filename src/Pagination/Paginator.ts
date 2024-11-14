@@ -1,14 +1,20 @@
-import { _obj } from 'tiny-supporter';
+import { _obj, _str } from '@noravel/supporter';
 import Config from '../Foundation/Config';
 
 export type PaginatorOptions = {
   path?: string;
+  baseUrl?: string;
   query?: any;
   fragment?: any;
   pageName?: string;
 };
 
-export const initOptions: PaginatorOptions = { path: '/', query: null, fragment: null, pageName: 'page' };
+export const initOptions: PaginatorOptions = {
+  path: '/',
+  query: null,
+  fragment: null,
+  pageName: 'page',
+};
 
 export default abstract class Paginator {
   public options: PaginatorOptions;
@@ -34,15 +40,15 @@ export default abstract class Paginator {
 
   abstract jsonSerialize(): Record<string, unknown>;
 
-  public firstItem() {
+  public firstItem(): number {
     return this.items.length > 0 ? this.perPage * (this.currentPage - 1) : 0;
   }
 
-  public lastItem() {
+  public lastItem(): number {
     return this.items.length > 0 ? this.perPage * this.currentPage : 0;
   }
 
-  public nextPageUrl() {
+  public nextPageUrl(): string | null {
     if (this.hasMorePages()) {
       return this.url(this.currentPage + 1);
     }
@@ -50,7 +56,7 @@ export default abstract class Paginator {
     return null;
   }
 
-  public previousPageUrl() {
+  public previousPageUrl(): string | null {
     if (this.currentPage > 1) {
       return this.url(this.currentPage - 1);
     }
@@ -58,20 +64,30 @@ export default abstract class Paginator {
     return null;
   }
 
-  public url(page: number) {
-    const base = Config.getInstance().getConfig('app.url');
+  public url(page: number): string {
+    let base = Config.getInstance().getConfig('app.url', '');
+
+    if (this.options.baseUrl) {
+      base = this.options.baseUrl;
+    }
 
     if (page <= 0) {
       page = 1;
     }
 
-    const url = new URL(this.path, base);
-    url.searchParams.set(this.pageName, `${page}`);
-
-    return url;
+    return _str(this.path)
+      .prepend(base)
+      .append(_obj.toQueryString({ [this.pageName]: page }))
+      .toString();
   }
 
-  public toJson() {
+  public setOption(key: string, value: unknown) {
+    _obj.set(this.options, key, value);
+
+    return this;
+  }
+
+  public toJson(): string {
     return JSON.stringify(this.jsonSerialize());
   }
 }

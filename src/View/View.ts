@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import ViewComposer from './ViewComposer';
 
 export default class View {

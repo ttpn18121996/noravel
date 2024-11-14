@@ -1,4 +1,4 @@
-import { _arr } from 'tiny-supporter';
+import { _arr } from '@noravel/supporter';
 import LengthAwarePaginator, { UrlRange } from './LengthAwarePaginator';
 
 export default class UrlWindow {

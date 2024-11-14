@@ -1,5 +1,5 @@
 import { NextFunction, RequestHandler } from 'express-serve-static-core';
-import { typeOf } from 'tiny-supporter';
+import { typeOf } from '@noravel/supporter';
 import { validMethod } from './Router';
 import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
 import { Request, Response } from '../Http';

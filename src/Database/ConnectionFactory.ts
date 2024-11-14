@@ -1,4 +1,4 @@
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import Config from '../Foundation/Config';
 import MySqlConnection from './MySqlConnection';
 import PostgreSqlConnection from './PostgreSqlConnection';

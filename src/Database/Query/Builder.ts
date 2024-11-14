@@ -1,4 +1,4 @@
-import { _arr, empty, typeOf } from 'tiny-supporter';
+import { _arr, empty, typeOf } from '@noravel/supporter';
 import type Connection from '../Connection';
 import ConnectionFactory from '../ConnectionFactory';
 import type Processor from './Processors/Processor';

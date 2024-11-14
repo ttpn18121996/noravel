@@ -1,4 +1,4 @@
-import { empty } from 'tiny-supporter';
+import { empty } from '@noravel/supporter';
 import { IJoinClause, JoinType } from '../../Contracts/Database/Builder';
 import Builder from './Builder';
 

@@ -1,7 +1,7 @@
 import { IRouter, NextFunction } from 'express-serve-static-core';
 import { Router as ExpressRouter } from 'express';
 import Route, { RouteAction } from './Route';
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
 import RouteGroup, { RouterOption } from './RouteGroup';
 import { Request, Response } from '../Http';

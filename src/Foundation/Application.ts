@@ -8,7 +8,7 @@ import SessionServiceProvider from '../Session/SessionServiceProvider';
 import RouteServiceProvider, { type RegisteredRoute } from './Providers/RouteServiceProvider';
 import Router from '../Routing/Router';
 import Middleware from './Configuration/Middleware';
-import { _obj } from 'tiny-supporter';
+import { _obj } from '@noravel/supporter';
 
 class Application {
   private basePath: string = '/';
