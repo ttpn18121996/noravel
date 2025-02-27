@@ -39,7 +39,7 @@ export default class UrlWindow {
       return this;
     }
 
-    this.first = _arr().range(1, total).get();
+    this.first = _arr().range(1, total);
 
     const first = this.paginator.getUrlRange(1, 2);
     const last = this.paginator.getUrlRange(total - 1, total);

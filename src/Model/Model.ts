@@ -1,6 +1,7 @@
 import { _obj } from '@noravel/supporter';
 import { DB } from '../Database';
 import Builder from '../Database/Query/Builder';
+import Config from '../Foundation/Config';
 
 export default class Model {
   protected table: string = '';
@@ -8,9 +9,11 @@ export default class Model {
   protected attributes: Record<string, unknown> = {};
   protected fillable: string[] = [];
   protected hidden: string[] = [];
+  protected connection: string;
 
   constructor(attributes: Record<string, unknown> = {}) {
     this.setAttributes(attributes);
+    this.connection = Config.getInstance().getConfig('database.default');
   }
 
   public fill(attributes: Record<string, unknown>) {
@@ -41,18 +44,12 @@ export default class Model {
     return this;
   }
 
-  public query(connection?: string): Builder {
-    const builder = DB.table(this.getTable()).setModel(this.getClass());
-
-    if (connection) {
-      return builder.connection(connection);
-    }
-
-    return builder;
+  public newQuery(): Builder {
+    return DB.table(this.getTable()).connection(this.connection).setModel(this);
   }
 
-  public getClass(): this {
-    return this;
+  public static query(): Builder {
+    return new this().newQuery();
   }
 
   public jsonSerialize(): Object {
@@ -61,5 +58,9 @@ export default class Model {
 
   public toJson(): string {
     return JSON.stringify(this.jsonSerialize());
+  }
+
+  public clone(): this {
+    return new (this.constructor as new () => this)();
   }
 }

@@ -1,4 +1,4 @@
-import { _arr, empty, typeOf } from '@noravel/supporter';
+import { _arr, _col, empty, typeOf } from '@noravel/supporter';
 import type Connection from '../Connection';
 import ConnectionFactory from '../ConnectionFactory';
 import type Processor from './Processors/Processor';
@@ -116,7 +116,7 @@ export default class Builder {
       addedColumns = [...args];
     }
 
-    this._columns = _arr(this._columns.concat(addedColumns)).unique().get();
+    this._columns = _arr(this._columns.concat(addedColumns)).unique();
 
     return this;
   }
@@ -579,7 +579,7 @@ export default class Builder {
       results.map(item => (this._model ? this._model.setAttributes(item) : item)),
     );
 
-    return results;
+    return _col(results).map((item: any) => (this._model ? this._model.clone().setAttributes(item) : item));
   }
 
   /**
@@ -596,7 +596,7 @@ export default class Builder {
         return this._model ? this._model.setAttributes(item) : item;
       },
     );
-    const total = (await this.first(['COUNT(*) as total']))?.total || 0;
+    const total = (await this.first(['COUNT(*) as total']) as { total: number })?.total || 0;
 
     return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName: pageName });
   }
