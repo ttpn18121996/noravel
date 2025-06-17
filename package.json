@@ -39,6 +39,10 @@
     "./model": "./dist/Model/index.js"
   },
   "dependencies": {
+    "@noravel/logger": "^1.1.0",
+    "@noravel/pagination": "^1.2.0",
+    "@noravel/supporter": "^2.0",
+    "@noravel/validation": "^1.1.0",
     "@types/ejs": "^3.1.5",
     "bcrypt": "^5.1.1",
     "ejs": "^3.1.10",
@@ -48,8 +52,7 @@
     "mysql2": "^3.10.2",
     "pg": "^8.11.3",
     "sequelize": "^6.37.3",
-    "sqlite3": "^5.1.7",
-    "@noravel/supporter": "^2.0"
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

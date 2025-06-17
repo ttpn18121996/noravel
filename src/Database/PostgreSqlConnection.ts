@@ -1,6 +1,5 @@
 import Config from '../Foundation/Config';
 import Connection from './Connection';
-import { _obj } from '@noravel/supporter';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 export default class PostgreSqlConnection extends Connection {

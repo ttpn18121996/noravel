@@ -1,12 +1,11 @@
+import { LengthAwarePaginator, SimplePaginator } from '@noravel/pagination';
 import { _arr, _col, empty, typeOf } from '@noravel/supporter';
 import type Connection from '../Connection';
 import ConnectionFactory from '../ConnectionFactory';
 import type Processor from './Processors/Processor';
 import { IJoinClause, OrderByType } from '../../Contracts/Database/Builder';
 import JoinClause from './JoinClause';
-import LengthAwarePaginator from '../../Pagination/LengthAwarePaginator';
 import { Model } from '../../Model';
-import SimplePaginator from '../../Pagination/SimplePaginator';
 
 const _operators = [
   '=',
@@ -596,7 +595,7 @@ export default class Builder {
         return this._model ? this._model.setAttributes(item) : item;
       },
     );
-    const total = (await this.first(['COUNT(*) as total']) as { total: number })?.total || 0;
+    const total = ((await this.first(['COUNT(*) as total'])) as { total: number })?.total || 0;
 
     return new LengthAwarePaginator(items, total, perPage, currentPage, { pageName: pageName });
   }

@@ -1,3 +1,4 @@
 import DB from './DB';
+import { LengthAwarePaginator, SimplePaginator } from '@noravel/pagination';
 
-export { DB };
+export { DB, LengthAwarePaginator, SimplePaginator };
