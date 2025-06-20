@@ -2,11 +2,13 @@ import express from 'express';
 import { engine as expressHandlebarsEngine } from 'express-handlebars';
 import ejs from 'ejs';
 import ServiceProvider from './ServiceProvider';
+import { DB } from '../../Database';
 
 export default class AppServiceProvider extends ServiceProvider {
   override register(): void {
     this.registerViews();
     this.registerStaticFile();
+    this.registerBuilder();
   }
 
   private registerViews() {
@@ -33,5 +35,9 @@ export default class AppServiceProvider extends ServiceProvider {
 
   private registerStaticFile() {
     this.app.use(express.static('public'));
+  }
+
+  private registerBuilder() {
+    this.container.bind('builder', () => DB.builder());
   }
 }
