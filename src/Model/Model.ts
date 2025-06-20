@@ -14,6 +14,45 @@ export default class Model {
   constructor(attributes: Record<string, unknown> = {}) {
     this.setAttributes(attributes);
     this.connection = Config.getInstance().getConfig('database.default');
+
+    return new Proxy(this, {
+      get(target, prop, receiver) {
+        const value = target[prop as keyof Model];
+
+        if (value instanceof Function) {
+          const _this = this;
+
+          return function (...args: any[]) {
+            return (value as Function).apply(_this === receiver ? target : _this, args);
+          };
+        }
+
+        if (value === undefined) {
+          return function (...args: any[]) {
+            const builder = DB.builder().setModel(target);
+
+            return (builder?.[prop as keyof Builder] as Function)?.apply(builder, args);
+          };
+        }
+
+        if (prop in target) {
+          return Reflect.get(target, prop, receiver);
+        }
+
+        return target.getAttribute(prop as string);
+      },
+      set(target, prop, value, receiver) {
+        if (prop in target) {
+          Reflect.set(target, prop, value, receiver);
+
+          return true;
+        }
+
+        target.setAttributes({ [prop as string]: value });
+
+        return true;
+      },
+    });
   }
 
   public fill(attributes: Record<string, unknown>) {
@@ -34,7 +73,7 @@ export default class Model {
     return this.attributes?.[this.getKeyName()];
   }
 
-  public getAttribute(key: string, defaultValue: any) {
+  public getAttribute(key: string, defaultValue?: any) {
     return _obj.get(this.attributes, key, defaultValue);
   }
 
