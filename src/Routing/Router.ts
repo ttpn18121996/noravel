@@ -1,4 +1,4 @@
-import { IRouter, NextFunction } from 'express-serve-static-core';
+import { IRouter } from 'express-serve-static-core';
 import { Router as ExpressRouter } from 'express';
 import Route, { RouteAction } from './Route';
 import { _obj } from '@noravel/supporter';
@@ -107,7 +107,7 @@ export default class Router {
     for (const [method, routes] of routeEntries) {
       for (const route of routes) {
         const middlewares = route.resolveMiddlewares();
-        middlewares.push((req: Request, res: Response, next: NextFunction) => route.execute(req, res, next));
+        middlewares.push((req: Request, res: Response) => route.execute(req, res));
         (router[method as keyof ExpressRouter] as Function)(route.uri, ...middlewares);
       }
     }

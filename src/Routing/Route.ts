@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler } from 'express-serve-static-core';
+import { RequestHandler } from 'express-serve-static-core';
 import { typeOf } from '@noravel/supporter';
 import { validMethod } from './Router';
 import { IFunctionalMiddleware, IMiddleware } from '../Foundation/Configuration/Middleware';
@@ -56,11 +56,11 @@ export default class Route {
     });
   }
 
-  public execute(req: Request, res: Response, next: NextFunction): Response {
+  public execute(req: Request, res: Response): Response {
     if (this.action === null && typeOf(this.controller) === 'function') {
-      return this.controller(req, res, next);
+      return this.controller(req, res);
     }
 
-    return new this.controller()[this.action || 'index'](req, res, next);
+    return new this.controller()[this.action || 'index'](req, res);
   }
 }
