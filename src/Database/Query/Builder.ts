@@ -507,6 +507,17 @@ export default class Builder {
     return await this.execute(sql, bindings as never[]);
   }
 
+  public async update(data: Record<string, unknown>) {
+    if (empty(data)) {
+      return true;
+    }
+
+    const sql = this._processor.compileUpdate(this._from, data, this._wheres);
+    const bindings = this._processor.getBindings();
+
+    return await this.execute(sql, bindings as never[]);
+  }
+
   /**
    * Insert a new record and get the value of the primary key.
    */
@@ -575,10 +586,10 @@ export default class Builder {
    */
   public async get(columns?: string | string[]): Promise<any> {
     const results = await this.execute(this.compileSelect(columns), this.getBindings() as never[], results =>
-      results.map(item => (this._model ? this._model.setAttributes(item) : item)),
+      results.map(item => (this._model ? this._model.newModel(item) : item)),
     );
 
-    return _col(results).map((item: any) => (this._model ? this._model.clone().setAttributes(item) : item));
+    return _col(results);
   }
 
   /**
@@ -644,7 +655,8 @@ export default class Builder {
 
   public setModel(model: Model) {
     this._model = model;
+    this._from = model.getTable();
 
-    return this;
+    return this.connection(model.getConnection());
   }
 }

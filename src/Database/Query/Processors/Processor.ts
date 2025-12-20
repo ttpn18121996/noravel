@@ -1,4 +1,4 @@
-import { _arr } from '@noravel/supporter';
+import { _arr, _str, empty } from '@noravel/supporter';
 import { IJoinClause, OrderByType } from '../../../Contracts/Database/Builder';
 
 export default abstract class Processor {
@@ -39,8 +39,7 @@ export default abstract class Processor {
         if (['IN', 'NOT IN'].includes(conditions[1])) {
           this.params = this.params.concat(conditions[2]);
           sql += `${conditions[0]} ${conditions[1]} (${_arr()
-            .range(0, conditions[2].length - 1)
-            .map(_ => '?')
+            .supplement(conditions[2].length, '?')
             .join(',')})`;
         } else if (['BETWEEN', 'NOT BETWEEN'].includes(conditions[1])) {
           const [from, to] = conditions[2];
@@ -143,6 +142,19 @@ export default abstract class Processor {
     sql = sql.replace(/\, \($/, '');
 
     return sql;
+  }
+
+  public compileUpdate(table: string, data: Record<string, unknown>, wheres: any[]): string {
+    let conditions = '';
+
+    if (!empty(data)) {
+      conditions = this.compileWhere(wheres);
+    }
+
+    return _str(`UPDATE ${table} SET {sets} {conditions}`).bind({
+      sets: Object.keys(data).map((field: string) => `${field} = ?`).join(', '),
+      conditions,
+    }).trim().toString();
   }
 
   public getBindings() {

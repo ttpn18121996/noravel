@@ -1,4 +1,3 @@
-import sqlite3, { type Database as IDatabase } from 'sqlite3';
 import { QueryTypes, Sequelize } from 'sequelize';
 import Config from '../Foundation/Config';
 import Connection from './Connection';
