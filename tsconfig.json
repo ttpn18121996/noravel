@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "CommonJS",
-    "outDir": "dist",
+    "target": "esnext",
+    "module": "commonjs",
     "incremental": true,
     "allowJs": true,
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "types": ["node"],
+    "removeComments": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "test", "**/*.spec.ts"]
